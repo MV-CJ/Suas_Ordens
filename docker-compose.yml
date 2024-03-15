@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"  # Mapeia a porta 5000 do host para a porta 5000 do contêiner
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://postgres:123456@db:5432/SO-db  # URL de conexão com o banco de dados
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: SO-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from app.models.models import db, User
 from flask import jsonify
@@ -15,7 +16,7 @@ def login():
             session['user_id'] = user.id
             return redirect(url_for('dashboard.dashboard'))
         else:
-            
+            flash('Invalid email or password.')
             return redirect(url_for('auth.login'))
 
     return render_template('login.html')
@@ -34,11 +35,11 @@ def register():
             db.session.add(new_user)
             db.session.commit()
 
-            # Retorna uma resposta JSON indicando sucesso
+            # Return a JSON response indicating success
             return jsonify({"success": True})
 
         else:
-            # Retorna uma resposta JSON indicando falha e as mensagens de erro
-            return jsonify({"success": False, "errors": ["Por favor, preencha todos os campos do formulário."]}), 400
+            # Return a JSON response indicating failure and error messages
+            return jsonify({"success": False, "errors": ["Please fill in all fields of the form."]}), 400
 
     return render_template('register.html')
