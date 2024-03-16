@@ -9,9 +9,20 @@ services:
       - db
     environment:
       DATABASE_URL: postgresql://postgres:123456@db:5432/SO-db  # URL de conexão com o banco de dados
+    networks:
+      - ordes
+
   db:
     image: postgres
     environment:
       POSTGRES_DB: SO-db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
+    ports: 
+      - "5433:5432" 
+    networks:
+      - ordes
+  
+networks:
+  ordes:
+    driver: bridge

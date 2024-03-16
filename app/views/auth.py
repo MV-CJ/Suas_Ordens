@@ -1,16 +1,16 @@
-# -*- coding: utf-8 -*-
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from app.models.models import db, User
+from app import db
 from flask import jsonify
-
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    from app.models.models import Users  # Importe apenas dentro da função para evitar importação circular
+
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-        user = User.query.filter_by(email=email, password=password).first()
+        user = Users.query.filter_by(email=email, password=password).first()
 
         if user:
             session['user_id'] = user.id
@@ -23,6 +23,8 @@ def login():
 
 @auth_bp.route('/register', methods=['GET','POST'])
 def register():
+    from app.models.models import Users  # Importe apenas dentro da função para evitar importação circular
+
     if request.method == 'POST':
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
@@ -31,15 +33,22 @@ def register():
         password_confirm = request.form.get('password_confirm')
 
         if first_name and last_name and email and password and password_confirm:
-            new_user = User(first_name=first_name, last_name=last_name, email=email, password=password)
+            # Verifica se as senhas coincidem
+            if password != password_confirm:
+                return jsonify({"success": False, "errors": ["Passwords do not match."]}), 400
+
+            # Verifica se o e-mail já está em uso
+            existing_user = Users.query.filter_by(email=email).first()
+            if existing_user:
+                return jsonify({"success": False, "errors": ["Email already exists."]}), 400
+
+            # Cria um novo usuário
+            new_user = Users(first_name=first_name, last_name=last_name, email=email, password=password)
             db.session.add(new_user)
             db.session.commit()
 
-            # Return a JSON response indicating success
             return jsonify({"success": True})
-
         else:
-            # Return a JSON response indicating failure and error messages
             return jsonify({"success": False, "errors": ["Please fill in all fields of the form."]}), 400
 
     return render_template('register.html')
