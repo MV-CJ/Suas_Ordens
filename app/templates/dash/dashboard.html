@@ -1,0 +1,216 @@
+{% extends "base/base_template.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block main_title %}Dashboard{% endblock %}
+
+{% block sub_title %}Área administrativa{% endblock %}
+
+{% block content %}
+<!-- Conteúdo específico desta página -->
+<div>
+    <!-- Conteúdo vai aqui -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body d-flex align-items-center"> <!-- Usamos as classes flexíveis para alinhar os itens verticalmente -->
+                    <span class="fs-4 flex-grow-1">Criar uma Nova Ordem</span> <!-- Aumentamos o tamanho do texto para 4 vezes e fazemos ele ocupar todo o espaço disponível -->
+                    <i class="fa-solid fa-file-circle-plus fa-3x ms-3"></i> <!-- Usamos o ícone "fa-shoe-prints" e aumentamos o tamanho para 3 vezes -->
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="ordem_form">Clique aqui</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body d-flex align-items-center"> <!-- Usamos as classes flexíveis para alinhar os itens verticalmente -->
+                    <span class="fs-4 flex-grow-1">Concluídas</span> <!-- Aumentamos o tamanho do texto para 4 vezes e fazemos ele ocupar todo o espaço disponível -->
+                    <i class="fas fa-thumbs-up fa-3x ms-3"></i> <!-- Aumentamos o tamanho do ícone para 3 vezes e adicionamos uma margem à esquerda -->
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="#">{contagem aqui}</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body d-flex align-items-center"> <!-- Usamos as classes flexíveis para alinhar os itens verticalmente -->
+                    <span class="fs-4 flex-grow-1">Canceladas</span> <!-- Aumentamos o tamanho do texto para 4 vezes e fazemos ele ocupar todo o espaço disponível -->
+                    <i class="fa-solid fa-face-frown-open fa-3x ms-3"></i><!-- Usamos o ícone "fa-times-circle" e aumentamos o tamanho para 3 vezes -->
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="#">{contagem aqui}</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body d-flex align-items-center"> <!-- Usamos as classes flexíveis para alinhar os itens verticalmente -->
+                    <span class="fs-4 flex-grow-1">Clientes Cadastrados</span> <!-- Aumentamos o tamanho do texto para 4 vezes e fazemos ele ocupar todo o espaço disponível -->
+                    <i class="fa-solid fa-building-user fa-3x ms-3"></i> <!-- Usamos o ícone "fa-user-check" e aumentamos o tamanho para 3 vezes -->
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="#">{contagem aqui}</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-table me-1"></i>
+                        DataTable Example 30 days
+                    </div>
+            <div class="card-body">
+                <table id="datatablesSimple">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Office</th>
+                            <th>Age</th>
+                            <th>Start date</th>
+                            <th>Salary</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Office</th>
+                            <th>Age</th>
+                            <th>Start date</th>
+                            <th>Salary</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        <tr>
+                            <td>Tiger Nixon</td>
+                            <td>System Architect</td>
+                            <td>Edinburgh</td>
+                            <td>61</td>
+                            <td>2011/04/25</td>
+                            <td>$320,800</td>
+                        </tr>
+                        <tr>
+                            <td>Colleen Hurst</td>
+                            <td>Javascript Developer</td>
+                            <td>San Francisco</td>
+                            <td>39</td>
+                            <td>2009/09/15</td>
+                            <td>$205,500</td>
+                        </tr>
+                        <tr>
+                            <td>Sonya Frost</td>
+                            <td>Software Engineer</td>
+                            <td>Edinburgh</td>
+                            <td>23</td>
+                            <td>2008/12/13</td>
+                            <td>$103,600</td>
+                        </tr>
+                        <tr>
+                            <td>Jena Gaines</td>
+                            <td>Office Manager</td>
+                            <td>London</td>
+                            <td>30</td>
+                            <td>2008/12/19</td>
+                            <td>$90,560</td>
+                        </tr>
+                        <tr>
+                            <td>Quinn Flynn</td>
+                            <td>Support Lead</td>
+                            <td>Edinburgh</td>
+                            <td>22</td>
+                            <td>2013/03/03</td>
+                            <td>$342,000</td>
+                        </tr>
+                        <tr>
+                            <td>Charde Marshall</td>
+                            <td>Regional Director</td>
+                            <td>San Francisco</td>
+                            <td>36</td>
+                            <td>2008/10/16</td>
+                            <td>$470,600</td>
+                        </tr>
+                        <tr>
+                            <td>Jennifer Acosta</td>
+                            <td>Junior Javascript Developer</td>
+                            <td>Edinburgh</td>
+                            <td>43</td>
+                            <td>2013/02/01</td>
+                            <td>$75,650</td>
+                        </tr>
+                        <tr>
+                            <td>Cara Stevens</td>
+                            <td>Sales Assistant</td>
+                            <td>New York</td>
+                            <td>46</td>
+                            <td>2011/12/06</td>
+                            <td>$145,600</td>
+                        </tr>
+                        <tr>
+                            <td>Hermione Butler</td>
+                            <td>Regional Director</td>
+                            <td>London</td>
+                            <td>47</td>
+                            <td>2011/03/21</td>
+                            <td>$356,250</td>
+                        </tr>
+                        <tr>
+                            <td>Lael Greer</td>
+                            <td>Systems Administrator</td>
+                            <td>London</td>
+                            <td>21</td>
+                            <td>2009/02/27</td>
+                            <td>$103,500</td>
+                        </tr>
+                        <tr>
+                            <td>Jonas Alexander</td>
+                            <td>Developer</td>
+                            <td>San Francisco</td>
+                            <td>30</td>
+                            <td>2010/07/14</td>
+                            <td>$86,500</td>
+                        </tr>
+                        <tr>
+                            <td>Shad Decker</td>
+                            <td>Regional Director</td>
+                            <td>Edinburgh</td>
+                            <td>51</td>
+                            <td>2008/11/13</td>
+                            <td>$183,000</td>
+                        </tr>
+                        <tr>
+                            <td>Michael Bruce</td>
+                            <td>Javascript Developer</td>
+                            <td>Singapore</td>
+                            <td>29</td>
+                            <td>2011/06/27</td>
+                            <td>$183,000</td>
+                        </tr>
+                        <tr>
+                            <td>Donna Snider</td>
+                            <td>Customer Support</td>
+                            <td>New York</td>
+                            <td>27</td>
+                            <td>2011/01/25</td>
+                            <td>$112,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <img src="static/assets/img/dash_robot.png" alt="Descrição da imagem" class="img-fluid" style="max-width: 600px;">
+
+</div>
+
+{% endblock %}

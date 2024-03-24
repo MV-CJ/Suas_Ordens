@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask_login import login_user
 from app import db
 from flask import jsonify
+
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -10,10 +12,11 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-        user = Users.query.filter_by(email=email, password=password).first()
-
-        if user:
-            session['user_id'] = user.id
+        
+        user = Users.query.filter_by(email=email).first()
+        
+        if user and user.check_password(password):
+            login_user(user)  # Autentica o usuário
             return redirect(url_for('dashboard.dashboard'))
         else:
             flash('Invalid email or password.')
@@ -44,6 +47,7 @@ def register():
 
             # Cria um novo usuário
             new_user = Users(first_name=first_name, last_name=last_name, email=email, password=password)
+            new_user.set_password(password)
             db.session.add(new_user)
             db.session.commit()
 

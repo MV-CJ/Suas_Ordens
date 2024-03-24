@@ -14,3 +14,4 @@ Werkzeug==3.0.1
 psycopg2-binary==2.9.1
 Flask-Login
 Flask-Migrate==4.0.7
+Flask-Login
