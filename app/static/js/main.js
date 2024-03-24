@@ -1,7 +1,28 @@
-
 (function ($) {
     "use strict";
 
+    $(document).ready(function(){
+        // Inicialize o campo de entrada com a máscara de dinheiro
+        $('#vl_inicial').maskMoney({
+            prefix: 'R$ ', 
+            allowNegative: true, 
+            thousands: '.', 
+            decimal: ',', 
+            affixesStay: false
+        });
+    
+        // Adicione um evento de saída do campo de entrada para formatar o valor corretamente
+        $('#vl_inicial').blur(function(){
+            // Remova a máscara temporariamente para obter o valor sem formatação
+            var unmasked_value = $(this).maskMoney('unmasked')[0];
+            // Se o valor for numérico, formate-o com separadores de milhares e duas casas decimais no formato brasileiro
+            if(!isNaN(unmasked_value)){
+                var formatted_value = parseFloat(unmasked_value).toFixed(2).replace('.', ',').replace(/\d(?=(\d{3})+,)/g, '$&.');
+                // Defina o valor formatado de volta no campo de entrada
+                $(this).val('R$ ' + formatted_value);
+            }
+        });
+    });
 
     /*==================================================================
     [ Focus input ]*/
@@ -83,5 +104,4 @@
         
     });
 
-
-})
+})(jQuery);
