@@ -1,13 +1,29 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from werkzeug.security import generate_password_hash
 from flask_login import login_user
 from app import db
 from flask import jsonify
+import re
 
 auth_bp = Blueprint('auth', __name__)
 
+
+def is_strong_password(password):
+    # Pelo menos 8 caracteres
+    if len(password) < 8:
+        return False
+    # Pelo menos uma letra maiúscula
+    if not re.search("[A-Z]", password):
+        return False
+    # Pelo menos um caractere especial
+    if not re.search("[!@#$%^&*()_+{}[\]:;<>,.?/~`]", password):
+        return False
+    return True
+
+
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    from app.models.models import Users  # Importe apenas dentro da função para evitar importação circular
+    from app.models.models import Users
 
     if request.method == 'POST':
         email = request.form.get('email')
@@ -16,11 +32,11 @@ def login():
         user = Users.query.filter_by(email=email).first()
         
         if user and user.check_password(password):
-            login_user(user)  # Autentica o usuário
+            login_user(user)
             return redirect(url_for('dashboard.dashboard'))
         else:
-            flash('Invalid email or password.')
-            return redirect(url_for('auth.login'))
+            # Retornaremos uma resposta indicando que as credenciais estão incorretas
+            return jsonify({"success": False, "error": "Invalid email or password."}), 401
 
     return render_template('login.html')
 
@@ -40,6 +56,11 @@ def register():
             if password != password_confirm:
                 return jsonify({"success": False, "errors": ["Passwords do not match."]}), 400
 
+            # Verifica se a senha é forte o suficiente
+            if not is_strong_password(password):
+                return jsonify({"success": False, "errors": ["Password is not strong enough."]}), 400
+
+            
             # Verifica se o e-mail já está em uso
             existing_user = Users.query.filter_by(email=email).first()
             if existing_user:
