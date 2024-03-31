@@ -22,27 +22,27 @@
                             <div class="card-header"><h3 class="text-center font-weight-light my-4">Login</h3></div>
                             <div class="card-body">
                                 <!-- Formulário de login -->
-                                <form method="POST" action="{{ url_for('auth.login') }}">
+                                <form id="loginForm" method="POST" action="{{ url_for('auth.login') }}">
                                     <div class="form-floating mb-3">
                                         <input class="form-control" name="email" id="inputEmail" type="email" placeholder="name@example.com" />
-                                        <label for="inputEmail">Email address</label>
+                                        <label for="inputEmail">Seu E-mail</label>
                                     </div>
                                     <div class="form-floating mb-3">
                                         <input class="form-control" name="password" id="inputPassword" type="password" placeholder="Password" />
-                                        <label for="inputPassword">Password</label>
+                                        <label for="inputPassword">Sua senha</label>
                                     </div>
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" id="inputRememberPassword" type="checkbox" value="" />
-                                        <label class="form-check-label" for="inputRememberPassword">Remember Password</label>
+                                        <label class="form-check-label" for="inputRememberPassword">Lembre-se de mim</label>
                                     </div>
                                     <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-                                        <a class="small" href="password.html">Forgot Password?</a>
-                                        <button class="btn btn-primary" type="submit">Login</button>
+                                        <a class="small" href="password.html">Esqueceu a senha?</a>
+                                        <button id="loginButton" class="btn btn-primary" type="submit">Login</button>
                                     </div>
                                 </form>
                             </div>
                             <div class="card-footer text-center py-3">
-                                <div class="small"><a href="register">Need an account? Sign up!</a></div>
+                                <div class="small"><a href="register">Não tem uma conta? Inscreva-se!</a></div>
                             </div>
                         </div>
                     </div>
@@ -54,7 +54,7 @@
         <footer class="py-2 bg-dark mt-auto">
             <div class="container-fluid px-4">
                 <div class="d-flex align-items-center justify-content-between small">
-                    <div class="text-muted">Copyright &copy; Your Website 2023</div>
+                    <div class="text-muted">Copyright &copy; Your Website 2024</div>
                     <div>
                         <a href="#">Privacy Policy</a>
                         &middot;
@@ -65,8 +65,54 @@
         </footer>
     </div>
 </div>
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Algo deu errado...</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Hmm... Não encontramos nada  com esse e-mail ou senha. Tente novamente ou crie uma conta!
+            </div>
+        </div>
+    </div>
+</div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="static/js/scripts.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#loginForm').submit(function(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+            
+            // Obtenha os valores dos campos de email e senha
+            var email = $('#inputEmail').val();
+            var password = $('#inputPassword').val();
+            
+            // Aqui você faria uma chamada AJAX para enviar os dados do formulário para o servidor
+            // Por enquanto, vamos simular uma resposta do servidor
+            $.ajax({
+                url: '/login',
+                type: 'POST',
+                data: {
+                    email: email,
+                    password: password
+                },
+                success: function(response) {
+                    // Se a autenticação for bem-sucedida, redirecione para o dashboard
+                    window.location.href = '/dashboard';
+                },
+                error: function(xhr, status, error) {
+                    // Verifique se o status da resposta é 401
+                    if (xhr.status === 401) {
+                        // Se o usuário não existir, mostre o modal de erro
+                        $('#errorModal').modal('show');
+                    }
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>
