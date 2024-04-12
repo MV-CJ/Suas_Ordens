@@ -13,8 +13,11 @@ def index():
 @dashboard_bp.route('/dashboard')
 @login_required
 def dashboard():
+    total_ordens = Order.query.count()
+    ordens_concluidas = Order.query.filter_by(status='Concluida').count()
+    ordens_canceladas = Order.query.filter_by(status='Cancelada').count()
     # Lógica para exibir o dashboard
-    return render_template('/dash/dashboard.html', email=current_user.email)
+    return render_template('/dash/dashboard.html', email=current_user.email,total_ordens=total_ordens,ordens_concluidas=ordens_concluidas,ordens_canceladas=ordens_canceladas)
 
 @dashboard_bp.route('/ordem_form')
 @login_required
