@@ -13,7 +13,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="card mb-4">
-                <div class="card-header"><i class="fas fa-edit me-1"></i>Preenchimento de Ordem N° {{ numero_ordem }}</div>
+                <div class="card-header"><i class="fas fa-edit me-1"></i>Preenchimento de Ordem N° {{ order_count_plus_one }}</div>
                 <div class="card-body">
                     <form method="POST" action="{{ url_for('dashboard.salvar_ordem') }}" id="form-ordem">
                         <div class="row">

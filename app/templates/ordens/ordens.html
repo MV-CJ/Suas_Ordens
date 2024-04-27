@@ -66,13 +66,14 @@
 {% if orders %}
 <div class="row mt-3" id="cardContainer">
     <!-- Aqui você irá adicionar cards com os dados do pedido -->
+    <p>Total de Ordens: {{ orders|length }}</p>
     {% for order in orders|reverse %}
     <div class="col-md-6">
         <div class="card mb-4">
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <h5 class="card-title">OS: {{ order.id }}</h5>
+                        <h5 class="card-title">OS: {{ order.numero_ordem }}</h5>
                         <p class="card-text"><strong>Operador:</strong> {{ order.operador }}</p>
                         <p class="card-text"><strong>Cliente:</strong> {{ order.cliente }}</p>
                         <p class="card-text"><strong>Equipamento:</strong> {{ order.equipamento }}</p>
@@ -85,7 +86,7 @@
                     </div>
                 </div>
                 <label for="status" class="form-label"><strong>Status:</strong></label>
-                <select class="form-select form-select-sm" id="status_{{ order.id }}" name="status" onchange="updateProgressBar('{{ order.id }}', this.value)">
+                <select class="form-select-sm form-select" id="status_{{ order.id }}" name="status" onchange="updateProgressBar('{{ order.id }}', this.value)">
                     <option value="Nao_iniciado"{% if order.status == 'Nao_iniciado' %} selected{% endif %}>Não iniciado</option>
                     <option value="Em_Andamento"{% if order.status == 'Em_Andamento' %} selected{% endif %}>Em Andamento</option>
                     <option value="Aguardando_Cliente"{% if order.status == 'Aguardando_Cliente' %} selected{% endif %}>Aguardando Cliente</option>
@@ -154,14 +155,6 @@
 
 </div>
 <script>
-
-function searchOrders() {
-    // Lógica para buscar e exibir as ordens de serviço de acordo com os filtros selecionados
-}
-
-function clearFilters() {
-    // Lógica para limpar os filtros e exibir todas as ordens de serviço novamente
-}
 
 function updateProgressBar(orderId, status) {
     var progressBar = document.getElementById("progressBar_" + orderId);
