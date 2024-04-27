@@ -75,7 +75,7 @@ def salvar_ordem():
         db.session.commit()
 
         # Redirecione para a página inicial ou para onde desejar após salvar a ordem
-        return redirect(url_for('dashboard.dashboard'))
+        return redirect(url_for('dashboard.ordens'))
 
 
 @dashboard_bp.route('/edit_order/<int:order_id>', methods=['GET', 'POST'])

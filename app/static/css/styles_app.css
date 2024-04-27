@@ -91,6 +91,12 @@
   }
 }
 
+.card-link {
+  text-decoration: none; /* Remove o sublinhado padrão do link */
+  color: white; /* Garante que a cor do texto seja a mesma do pai */
+}
+
+
 body {
   margin: 0;
   font-family: var(--bs-body-font-family);

@@ -15,7 +15,7 @@
             <div class="card mb-4">
                 <div class="card-header"><i class="fas fa-edit me-1"></i>Preenchimento de Ordem N° {{ numero_ordem }}</div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('dashboard.salvar_ordem') }}">
+                    <form method="POST" action="{{ url_for('dashboard.salvar_ordem') }}" id="form-ordem">
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label for="operador" class="form-label">Operador</label>
@@ -77,8 +77,8 @@
 
                         </div>
                         <div class="text-center">
-                            <button type="submit" class="btn btn-success">Salvar</button>
-                            <a href="dashboard" class="btn btn-danger">Cancelar</a>
+                            <button type="button" class="btn btn-success" onclick="validarFormulario()">Salvar</button>
+                            <a href="ordens" class="btn btn-danger">Cancelar</a>
                         </div>
                     </form>
                 </div>
@@ -86,4 +86,34 @@
         </div>
     </div>
 </div>
+
+<script>
+function validarFormulario() {
+    var campos = document.querySelectorAll('#form-ordem input[type="text"], #form-ordem textarea:not(#observacoes)');
+    var camposVazios = [];
+
+    campos.forEach(function(campo) {
+        if (campo.value.trim() === '') {
+            campo.classList.add('is-invalid');
+            camposVazios.push(campo.getAttribute('id'));
+        } else {
+            campo.classList.remove('is-invalid');
+        }
+    });
+
+    if (camposVazios.length > 0) {
+        var camposVaziosNomes = camposVazios.map(function(campoId) {
+            return document.querySelector('label[for="' + campoId + '"]').textContent;
+        });
+    } else {
+        document.getElementById('form-ordem').submit();
+    }
+}
+</script>
+
+<style>
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+</style>
 {% endblock %}
