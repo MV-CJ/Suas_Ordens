@@ -39,3 +39,5 @@ def create_app():
     login_manager.id_attribute = 'get_id'  # Adicionando esta linha
 
     return app
+
+app = create_app()

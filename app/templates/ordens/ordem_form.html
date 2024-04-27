@@ -18,15 +18,15 @@
                     <form method="POST" action="{{ url_for('dashboard.salvar_ordem') }}">
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="prioridade" class="form-label">Operador</label>
-                                <input type="text" class="form-control" id="disabledInput" name="operador" value="{{ current_user.first_name }} {{ current_user.last_name }}" readonly disabled>
+                                <label for="operador" class="form-label">Operador</label>
+                                <input type="text" class="form-control" id="operador" name="operador" value="{{ current_user.first_name }} {{ current_user.last_name }}" readonly disabled>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="material" class="form-label">Data de inicio</label>
+                                <label for="data_inicio" class="form-label">Data de início</label>
                                 <input type="date" class="form-control" id="data_inicio" name="data_inicio">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="saida" class="form-label">Previsão de entrega</label>
+                                <label for="prev_entrega" class="form-label">Previsão de entrega</label>
                                 <input type="date" class="form-control" id="prev_entrega" name="prev_entrega">
                             </div>
 
@@ -39,33 +39,33 @@
                                 <input type="text" class="form-control" id="equipamento" name="equipamento">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="equipamento" class="form-label">Categoria</label>
+                                <label for="categoria" class="form-label">Categoria</label>
                                 <input type="text" class="form-control" id="categoria" name="categoria">
                             </div>
 
                             <div class="col-md-4 mb-3">
                                 <label for="prioridade" class="form-label">Prioridade</label>
                                 <select class="form-control" id="prioridade" name="prioridade">
-                                    <option value="alto">Alto</option>
-                                    <option value="medio">Médio</option>
-                                    <option value="baixo">Baixo</option>
+                                    <option value="Alto">Alto</option>
+                                    <option value="Médio">Médio</option>
+                                    <option value="Baixo">Baixo</option>
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="equipamento" class="form-label">Status</label>
+                                <label for="status" class="form-label">Status</label>
                                 <select class="form-control" id="status" name="status">
+                                    <option value="Nao_iniciado">Não iniciado</option>
                                     <option value="Em_Andamento">Em Andamento</option>
                                     <option value="Aguardando_Cliente">Aguardando Cliente</option>
-                                    <option value="Aguardando_Peca">Aguardando Peças</option>
+                                    <option value="Aguardando_Peças">Aguardando Peças</option>
                                     <option value="Cancelada">Cancelada</option>
-                                    <option value="Concluida">Concluída</option>
+                                    <option value="Concluída">Concluída</option>
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="valor_inicial" class="form-label">Valor inicial</label>
+                                <label for="vl_inicial" class="form-label">Valor inicial</label>
                                 <div class="input-group">
                                     <span class="input-group-text">R$</span>
-                                    <!-- Troque o input type para text -->
                                     <input type="text" class="form-control input-mask" id="vl_inicial" name="vl_inicial">
                                 </div>
                             </div>
@@ -80,12 +80,10 @@
                             <button type="submit" class="btn btn-success">Salvar</button>
                             <a href="dashboard" class="btn btn-danger">Cancelar</a>
                         </div>
-                        
                     </form>
                 </div>
             </div>
         </div>
+    </div>
 </div>
-
-
 {% endblock %}
