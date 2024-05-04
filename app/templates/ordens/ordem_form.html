@@ -7,6 +7,24 @@
 {% block sub_title %}Ordem de Serviço{% endblock %}
 
 {% block content %}
+<!-- Modal -->
+<div class="modal fade" id="camposFaltandoModal" tabindex="-1" aria-labelledby="camposFaltandoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="camposFaltandoModalLabel">Campos Faltando</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+            <p id="camposFaltandoTexto"></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+    </div>
+    </div>
+</div>
+
 <!-- Conteúdo específico desta página -->
 <div>
     <!-- Conteúdo vai aqui -->
@@ -21,6 +39,7 @@
                                 <label for="operador" class="form-label">Operador</label>
                                 <input type="text" class="form-control" id="operador" name="operador" value="{{ current_user.first_name }} {{ current_user.last_name }}" readonly disabled>
                             </div>
+                            
                             <div class="col-md-4 mb-3">
                                 <label for="data_inicio" class="form-label">Data de início</label>
                                 <input type="date" class="form-control" id="data_inicio" name="data_inicio">
@@ -89,15 +108,15 @@
 
 <script>
 function validarFormulario() {
-    var campos = document.querySelectorAll('#form-ordem input[type="text"], #form-ordem textarea:not(#observacoes)');
+    var campos = document.querySelectorAll('#form-ordem input[type="text"], #form-ordem input[type="date"], #form-ordem textarea:not(#observacoes)');
     var camposVazios = [];
 
     campos.forEach(function(campo) {
-        if (campo.value.trim() === '') {
+        if ((campo.type === 'text' || campo.type === 'date') && campo.value.trim() === '') {
             campo.classList.add('is-invalid');
             camposVazios.push(campo.getAttribute('id'));
         } else {
-            campo.classList.remove('is-invalid');
+            campo.classList.remove('is-invalid'); // Remover a classe is-invalid quando preenchido
         }
     });
 
@@ -105,6 +124,12 @@ function validarFormulario() {
         var camposVaziosNomes = camposVazios.map(function(campoId) {
             return document.querySelector('label[for="' + campoId + '"]').textContent;
         });
+
+        // Exibir o modal com os campos faltando
+        var camposFaltandoTexto = 'Por favor, preencha todos os campos obrigatórios: ' + camposVaziosNomes.join(', ');
+        document.getElementById('camposFaltandoTexto').textContent = camposFaltandoTexto;
+        var camposFaltandoModal = new bootstrap.Modal(document.getElementById('camposFaltandoModal'));
+        camposFaltandoModal.show();
     } else {
         document.getElementById('form-ordem').submit();
     }

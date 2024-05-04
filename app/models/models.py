@@ -4,6 +4,8 @@ from flask_login import UserMixin
 from sqlalchemy import Sequence,text
 from sqlalchemy.ext.declarative import declarative_base
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime 
+import uuid
 
 class Users(db.Model, UserMixin):
     __tablename__ = 'users'
@@ -29,7 +31,7 @@ class Order(db.Model):
     __tablename__ = 'orders'
 
     id = db.Column(db.Integer, primary_key=True)
-    numero_ordem = db.Column(db.Integer, Sequence('orders_numero_ordem_seq', start=1), server_default=text("nextval('orders_numero_ordem_seq'::regclass)"))
+    numero_ordem = db.Column(db.String(36), unique=True, default=str(uuid.uuid4()), nullable=False)
     operador = db.Column(db.String(100), nullable=False)
     data_inicio = db.Column(db.Date)
     previsao_entrega = db.Column(db.Date)
@@ -40,6 +42,10 @@ class Order(db.Model):
     status = db.Column(db.String(50), nullable=False)
     valor_inicial = db.Column(db.Float, nullable=False)
     observacoes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.now)  # Adicione esta linha
 
     def __repr__(self):
-        return f"Order('{self.numero_ordem}', '{self.operador}', '{self.data_inicio}', '{self.previsao_entrega}', '{self.cliente}', '{self.equipamento}', '{self.categoria}', '{self.prioridade}', '{self.status}', '{self.valor_inicial}', '{self.observacoes}')"
+        return f'''
+                Order('{self.numero_ordem}', '{self.operador}', '{self.data_inicio}', '{self.previsao_entrega}', 
+                '{self.cliente}', '{self.equipamento}', '{self.categoria}', '{self.prioridade}', '{self.status}', 
+                '{self.valor_inicial}', '{self.observacoes}')'''

@@ -1,0 +1,102 @@
+{% extends "base/base_template.html" %}
+
+{% block title %}Editar Ordem{% endblock %}
+
+{% block main_title %}Editar Ordem{% endblock %}
+
+{% block sub_title %}Ordem de Serviço{% endblock %}
+
+{% block content %}
+<!-- Conteúdo específico desta página -->
+<div>
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card mb-4">
+                <div class="card-header"><i class="fas fa-edit me-1"></i>Edição de Ordem</div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('dashboard.ordem_edit', order_id=ordem.id) }}">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="operador" class="form-label">Operador</label>
+                                <input type="text" class="form-control" id="operador" name="operador" value="{{ ordem.operador }}" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="data_inicio" class="form-label">Data de Início</label>
+                                <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="{{ ordem.data_inicio }}" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="prev_entrega" class="form-label">Previsão de Entrega</label>
+                                <input type="date" class="form-control" id="prev_entrega" name="prev_entrega" value="{{ ordem.previsao_entrega }}" required>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="cliente" class="form-label">Cliente</label>
+                                <input type="text" class="form-control" id="cliente" name="cliente" value="{{ ordem.cliente }}" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="equipamento" class="form-label">Equipamento</label>
+                                <input type="text" class="form-control" id="equipamento" name="equipamento" value="{{ ordem.equipamento }}" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="categoria" class="form-label">Categoria</label>
+                                <input type="text" class="form-control" id="categoria" name="categoria" value="{{ ordem.categoria }}" required>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="prioridade" class="form-label">Prioridade</label>
+                                <input type="text" class="form-control" id="prioridade" name="prioridade" value="{{ ordem.prioridade }}" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="status" class="form-label">Status</label>
+                                <input type="text" class="form-control" id="status" name="status" value="{{ ordem.status }}" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="vl_inicial" class="form-label">Valor Inicial</label>
+                                <input type="text" class="form-control" id="vl_inicial" name="vl_inicial" value="{{ ordem.valor_inicial }}" required>
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="observacoes" class="form-label">Observações</label>
+                                <textarea class="form-control" id="observacoes" name="observacoes" rows="4">{{ ordem.observacoes }}</textarea>
+                            </div>
+
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                        <a href="../ordens" class="btn btn-danger">Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function validarFormulario() {
+    var campos = document.querySelectorAll('#form-ordem input[type="text"], #form-ordem textarea:not(#observacoes)');
+    var camposVazios = [];
+
+    campos.forEach(function(campo) {
+        if (campo.value.trim() === '') {
+            campo.classList.add('is-invalid');
+            camposVazios.push(campo.getAttribute('id'));
+        } else {
+            campo.classList.remove('is-invalid');
+        }
+    });
+
+    if (camposVazios.length > 0) {
+        var camposVaziosNomes = camposVazios.map(function(campoId) {
+            return document.querySelector('label[for="' + campoId + '"]').textContent;
+        });
+    } else {
+        document.getElementById('form-ordem').submit();
+    }
+}
+</script>
+
+<style>
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+</style>
+{% endblock %}
