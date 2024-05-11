@@ -548,3 +548,4 @@ def buscar_itens():
     response = [{'descricao': item.descricao, 'codigo': item.codigo, 'preco': item.preco, 'categoria_item': item.categoria_item} for item in results]
 
     return jsonify(response)
+
