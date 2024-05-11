@@ -8,159 +8,286 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="col-md-2">
-        <input type="text" class="form-control" id="searchOrderId" placeholder="Pesquisar por Numero OS">
-    </div>
-    <div class="col-md-2">
-        <input type="text" class="form-control" id="searchEquipment" placeholder="Pesquisar por Equipamento">
-    </div>
-    <div class="col-md-3">
-        <input type="text" class="form-control" id="searchClient" placeholder="Pesquisar por Cliente">
-    </div>
-    <div class="col-md-2">
-        <select class="form-control form-select" id="filterStatus">
-            <option value="" disabled selected hidden>Status...</option>
-            <option value="Em_Andamento">Em Andamento</option>
-            <option value="Aguardando_Cliente">Aguardando Cliente</option>
-            <option value="Aguardando_Peças">Aguardando Peças</option>
-            <option value="Cancelada">Cancelada</option>
-            <option value="Concluída">Concluída</option>
-        </select>
-    </div>
-    <div class="col-md-2">
-        <select class="form-control form-select" id="filterPriority">
-            <option value="" disabled selected hidden>Prioridade...</option>
-            <option value="Alto">Alto</option>
-            <option value="Médio">Médio</option>
-            <option value="Baixo">Baixo</option>
-        </select>
-    </div>
-</div>
-
-<div class="row mt-3">    
-    <div class="col-md-2">
-        <div class="input-group">
-            <select class="form-control form-select" id="filterCategory">
-                <option value="" disabled selected hidden>Categoria...</option>
-                <option value="">Categoria</option>
-                <option value="">Categoria</option>
-                <option value="">Categoria</option>
-                <option value="">Categoria</option>
-            </select>
-        </div>
-    </div>
-    <div class="col-md-2">
-        <input type="date" class="form-control" id="filterStartDate" placeholder="Data de Início">
-    </div>
-    <div class="col-md-2">
-        <input type="date" class="form-control" id="filterEndDate" placeholder="Previsão de Entrega">
-    </div>
-    <div class="col-md-6">
-        <button class="btn btn-primary mr-2" onclick="searchOrders()"><i class="fas fa-search"></i> Pesquisar</button>
-        <button class="btn btn-secondary mr-2" onclick="clearFilters()"><i class="fas fa-times"></i> Limpar Filtros</button>
-        <a href="ordem_form" class="btn btn-success"><i class="fas fa-plus"></i> Adicionar nova Ordem</a>
-    </div>
-</div>
-
-{% if orders %}
-<div class="row mt-3" id="cardContainer">
-    <!-- Aqui você irá adicionar cards com os dados do pedido -->
-    {% for order in orders|reverse %}
-    <div class="col-md-6">
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h5 class="card-title">OS: {{ order.id }}</h5>
-                        <p class="card-text"><strong>Operador:</strong> {{ order.operador }}</p>
-                        <p class="card-text"><strong>Cliente:</strong> {{ order.cliente }}</p>
-                        <p class="card-text"><strong>Equipamento:</strong> {{ order.equipamento }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p class="card-text"><strong>Categoria:</strong> {{ order.categoria }}</p>
-                        <p class="card-text"><strong>Prioridade:</strong> {{ order.prioridade }}</p>
-                        <p class="card-text"><strong>Data de Início:</strong> {% if order.data_inicio %}{{ order.data_inicio.strftime('%d/%m/%Y') }}{% endif %}</p>
-                        <p class="card-text"><strong>Previsão de Entrega:</strong> {% if order.previsao_entrega %}{{ order.previsao_entrega.strftime('%d/%m/%Y') }}{% endif %}</p>
-                    </div>
-                </div>
-                <label for="status" class="form-label"><strong>Status:</strong></label>
-                <select class="form-select form-select-sm" id="status_{{ order.id }}" name="status" onchange="updateProgressBar('{{ order.id }}', this.value)">
-                    <option value="Nao_iniciado"{% if order.status == 'Nao_iniciado' %} selected{% endif %}>Não iniciado</option>
-                    <option value="Em_Andamento"{% if order.status == 'Em_Andamento' %} selected{% endif %}>Em Andamento</option>
-                    <option value="Aguardando_Cliente"{% if order.status == 'Aguardando_Cliente' %} selected{% endif %}>Aguardando Cliente</option>
-                    <option value="Aguardando_Peças"{% if order.status == 'Aguardando_Peças' %} selected{% endif %}>Aguardando Peças</option>
-                    <option value="Cancelada"{% if order.status == 'Cancelada' %} selected{% endif %}>Cancelada</option>
-                    <option value="Concluída"{% if order.status == 'Concluída' %} selected{% endif %}>Concluída</option>
-                </select>
-                <div class="progress mt-3">
-                    <div id="progressBar_{{ order.id }}" class="progress-bar {% if order.status == 'Em_Andamento' %}bg-info{% elif order.status == 'Aguardando_Cliente' or order.status == 'Aguardando_Peças' %}bg-warning{% elif order.status == 'Cancelada' %}bg-danger{% elif order.status == 'Concluída' %}bg-success{% endif %}" role="progressbar" 
-                        style="width: {% if order.status == 'Em_Andamento' %}25{% elif order.status in ['Aguardando_Cliente', 'Aguardando_Peças'] %}
-                        50{% elif order.status == 'Cancelada' %}100{% elif order.status == 'Concluída' %}100{% endif %}%" aria-valuenow="{% if order.status == 'Em_Andamento' %}25{% elif order.status in ['Aguardando_Cliente', 'Aguardando_Peças'] %}50{% elif order.status == 'Cancelada' %}100{% elif order.status == 'Concluída' %}100{% endif %}" aria-valuemin="0" aria-valuemax="100">
-                    </div>
-                </div>
-                <p class="card-text"><strong>Valor Inicial:</strong> {{ 'R$ {:.2f}'.format(order.valor_inicial) }}</p>
-                <a href="ordem_form" class="btn btn-warning"><i class="fas fa-pencil-alt"></i> Editar</a>
-                <a href="ordem_form" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Deletar</a>
-                <a href="ordem_form" class="btn btn-secondary"><i class="fas fa-print"></i> Imprimir</a>
-                <!-- Conteúdo adicional, se necessário -->
+<!-- Modais -->
+<div class="modal fade" id="confirmStatusChangeModal" tabindex="-1" aria-labelledby="confirmStatusChangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmStatusChangeModalLabel">Confirmar Alteração de Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Tem certeza de que deseja alterar o status desta ordem de serviço?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveStatusChange()">Confirmar</button>
             </div>
         </div>
     </div>
-    {% endfor %}
+</div>
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Tem certeza de que deseja excluir esta ordem de serviço?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="deleteOrder()">Confirmar Exclusão</button>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Controles de paginação -->
-<nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center">
-        {% if current_page != 1 %}
-        <li class="page-item">
-            <a class="page-link" href="?page=1&items_per_page={{ items_per_page }}" aria-label="Primeira página">
-                <span aria-hidden="true">&laquo;</span>
-            </a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="?page={{ current_page - 1 }}&items_per_page={{ items_per_page }}" aria-label="Anterior">
-                <span aria-hidden="true">&lsaquo;</span>
-            </a>
-        </li>
-        {% endif %}
-        {% for num_page in range(1, total_pages + 1) %}
-        <li class="page-item {% if num_page == current_page %}active{% endif %}">
-            <a class="page-link" href="?page={{ num_page }}&items_per_page={{ items_per_page }}">{{ num_page }}</a>
-        </li>
+<div>
+    <div class="row">
+        <div class="col-md-2">
+            <input type="text" class="form-control" id="searchOrderId" placeholder="Pesquisar por Numero OS">
+        </div>
+        <div class="col-md-2">
+            <input type="text" class="form-control" id="searchEquipment" placeholder="Pesquisar por Equipamento">
+        </div>
+        <div class="col-md-3">
+            <input type="text" class="form-control" id="searchClient" placeholder="Pesquisar por Cliente">
+        </div>
+        <div class="col-md-2">
+            <select class="form-control form-select" id="filterStatus">
+                <option value="" disabled selected hidden>Status...</option>
+                <option value="Em_Andamento">Em Andamento</option>
+                <option value="Aguardando_Cliente">Aguardando Cliente</option>
+                <option value="Aguardando_Peças">Aguardando Peças</option>
+                <option value="Cancelada">Cancelada</option>
+                <option value="Concluída">Concluída</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select class="form-control form-select" id="filterPriority">
+                <option value="" disabled selected hidden>Prioridade...</option>
+                <option value="Alto">Alto</option>
+                <option value="Médio">Médio</option>
+                <option value="Baixo">Baixo</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row mt-3">    
+        <div class="col-md-2">
+            <div class="input-group">
+                <select class="form-control form-select" id="filterCategory">
+                    <option value="" disabled selected hidden>Categoria...</option>
+                    <option value="">Categoria</option>
+                    <option value="">Categoria</option>
+                    <option value="">Categoria</option>
+                    <option value="">Categoria</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <input type="date" class="form-control" id="filterStartDate" placeholder="Data de Início">
+        </div>
+        <div class="col-md-2">
+            <input type="date" class="form-control" id="filterEndDate" placeholder="Previsão de Entrega">
+        </div>
+        <div class="col-md-6">
+            <button class="btn btn-primary mr-2" onclick="searchOrders()"><i class="fas fa-search"></i> Pesquisar</button>
+            <button class="btn btn-secondary mr-2" onclick="clearFilters()"><i class="fas fa-times"></i> Limpar Filtros</button>
+            <a href="ordem_form" class="btn btn-success"><i class="fas fa-plus"></i> Adicionar nova Ordem</a>
+        </div>
+    </div>
+    <hr>
+    {% if orders_items %}
+    <div class="row mt-3" id="cardContainer">
+        <!-- Aqui você irá adicionar cards com os dados do pedido -->
+        <p>Total de Ordens: {{ total_ordens }}</p>
+        {% for order in orders_items | sort(attribute='numero_ordem') | reverse %}
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="card-title">OS: {{ order.numero_ordem }}</h5>
+                            <p class="card-text"><strong>Operador:</strong> {{ order.operador }}</p>
+                            <p class="card-text"><strong>Cliente:</strong> {{ order.cliente }}</p>
+                            <p class="card-text"><strong>Equipamento:</strong> {{ order.equipamento }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="card-text"><strong>Categoria:</strong> {{ order.categoria }}</p>
+                            <p class="card-text"><strong>Prioridade:</strong> {{ order.prioridade }}</p>
+                            <p class="card-text"><strong>Data de Início:</strong> {% if order.data_inicio %}{{ order.data_inicio.strftime('%d/%m/%Y') }}{% endif %}</p>
+                            <p class="card-text"><strong>Previsão de Entrega:</strong> {% if order.previsao_entrega %}{{ order.previsao_entrega.strftime('%d/%m/%Y') }}{% endif %}</p>
+                        </div>
+                    </div>
+                    <label for="status" class="form-label"><strong>Status:</strong></label>
+                    <select class="form-select-sm form-select" id="status_{{ order.id }}" name="novo_status" onchange="confirmStatusChange('{{ order.id }}', this.value, '{{ order.numero_ordem }}')">
+                        <option value="Nao_iniciado"{% if order.status == 'Nao_iniciado' %} selected{% endif %}>Não iniciado</option>
+                        <option value="Em_Andamento"{% if order.status == 'Em_Andamento' %} selected{% endif %}>Em Andamento</option>
+                        <option value="Aguardando_Cliente"{% if order.status == 'Aguardando_Cliente' %} selected{% endif %}>Aguardando Cliente</option>
+                        <option value="Aguardando_Peças"{% if order.status == 'Aguardando_Peças' %} selected{% endif %}>Aguardando Peças</option>
+                        <option value="Cancelada"{% if order.status == 'Cancelada' %} selected{% endif %}>Cancelada</option>
+                        <option value="Concluída"{% if order.status == 'Concluída' %} selected{% endif %}>Concluída</option>
+                    </select>
+                    <div class="progress mt-3">
+                        <div id="progressBar_{{ order.id }}" class="progress-bar {% if order.status == 'Em_Andamento' %}bg-info{% elif order.status == 'Aguardando_Cliente' or order.status == 'Aguardando_Peças' %}bg-warning{% elif order.status == 'Cancelada' %}bg-danger{% elif order.status == 'Concluída' %}bg-success{% endif %}" role="progressbar" 
+                            style="width: {% if order.status == 'Em_Andamento' %}25{% elif order.status in ['Aguardando_Cliente', 'Aguardando_Peças'] %}
+                            50{% elif order.status == 'Cancelada' %}100{% elif order.status == 'Concluída' %}100{% endif %}%" aria-valuenow="{% if order.status == 'Em_Andamento' %}25{% elif order.status in ['Aguardando_Cliente', 'Aguardando_Peças'] %}50{% elif order.status == 'Cancelada' %}100{% elif order.status == 'Concluída' %}100{% endif %}" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                    <p class="card-text"><strong>Valor Inicial:</strong> {{ 'R$ {:.2f}'.format(order.valor_inicial) }}</p>
+                    <a href="{{ url_for('dashboard.ordem_edit', order_id=order.id) }}" class="btn btn-warning"><i class="fas fa-pencil-alt"></i> Editar</a>
+                    <form action="{{ url_for('dashboard.ordem_delete', order_id=order.id) }}" method="post" style="display: inline;">
+                        <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ order.id }}')"><i class="fas fa-trash-alt"></i> Deletar</button>
+                    </form>
+                    <a href="{{ url_for('dashboard.gerar_pdf', order_id=order.id) }}" class="btn btn-secondary" target="_blank"><i class="fas fa-print"></i> Imprimir</a>
+                    <!-- Conteúdo adicional, se necessário -->
+                </div>
+            </div>
+        </div>
         {% endfor %}
-        {% if current_page != total_pages %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ current_page + 1 }}&items_per_page={{ items_per_page }}" aria-label="Próxima">
-                <span aria-hidden="true">&rsaquo;</span>
-            </a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="?page={{ total_pages }}&items_per_page={{ items_per_page }}" aria-label="Última página">
-                <span aria-hidden="true">&raquo;</span>
-            </a>
-        </li>
-        {% endif %}
-    </ul>
-</nav>
-{% else %}
-<!-- Se não houver ordens, exiba a imagem no lugar da navegação -->
-<br>
-<div class="text-center">
-    <img src="static/assets/img/404-bot.png" alt="Imagem error" class="img-fluid" style="max-width: 600px;">
-</div>
-{% endif %}
+    </div>
 
+    <!-- Controles de paginação -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if current_page != 1 %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1&items_per_page={{ items_per_page }}" aria-label="Primeira página">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ current_page - 1 }}&items_per_page={{ items_per_page }}" aria-label="Anterior">
+                    <span aria-hidden="true">&lsaquo;</span>
+                </a>
+            </li>
+            {% endif %}
+            {% for num_page in range(1, total_pages + 1) %}
+            <li class="page-item {% if num_page == current_page %}active{% endif %}">
+                <a class="page-link" href="?page={{ num_page }}&items_per_page={{ items_per_page }}">{{ num_page }}</a>
+            </li>
+            {% endfor %}
+            {% if current_page != total_pages %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ current_page + 1 }}&items_per_page={{ items_per_page }}" aria-label="Próxima">
+                    <span aria-hidden="true">&rsaquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ total_pages }}&items_per_page={{ items_per_page }}" aria-label="Última página">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% else %}
+    <!-- Se não houver ordens, exiba a imagem no lugar da navegação -->
+    <br>
+    <div class="text-center">
+        <img src="static/assets/img/404-bot.png" alt="Imagem error" class="img-fluid" style="max-width: 600px;">
+    </div>
+    {% endif %}
 </div>
+
 <script>
-
 function searchOrders() {
-    // Lógica para buscar e exibir as ordens de serviço de acordo com os filtros selecionados
+    // Obter os valores dos campos de filtro
+    var searchOrderId = document.getElementById("searchOrderId").value;
+    var searchEquipment = document.getElementById("searchEquipment").value;
+    var searchClient = document.getElementById("searchClient").value;
+    var filterStatus = document.getElementById("filterStatus").value;
+    var filterPriority = document.getElementById("filterPriority").value;
+    var filterStartDate = document.getElementById("filterStartDate").value;
+    var filterEndDate = document.getElementById("filterEndDate").value;
+
+    // Obter a quantidade total de itens por página
+    var itemsPerPage = 10; // Supondo que você esteja exibindo 10 itens por página
+
+    // Verificar se a primeira página será atualizada
+    var firstPageUpdate = false;
+    var currentPage = 1; // Página padrão para redirecionamento
+    var totalItems = {{ total_ordens }}; // Substitua {{ total_ordens }} pela variável que contém o total de itens
+
+    // Verificar se há espaço suficiente na primeira página para incluir o novo item
+    if (totalItems % itemsPerPage == 0) {
+        firstPageUpdate = true;
+    }
+
+    // Redirecionar para a rota /ordens com os parâmetros de consulta
+    var redirectUrl = "/ordens?page=";
+    if (firstPageUpdate) {
+        window.location.href = redirectUrl + "1&items_per_page=" + itemsPerPage +
+            "&searchOrderId=" + encodeURIComponent(searchOrderId) +
+            "&searchEquipment=" + encodeURIComponent(searchEquipment) +
+            "&searchClient=" + encodeURIComponent(searchClient) +
+            "&filterStatus=" + encodeURIComponent(filterStatus) +
+            "&filterPriority=" + encodeURIComponent(filterPriority) +
+            "&filterStartDate=" + encodeURIComponent(filterStartDate) +
+            "&filterEndDate=" + encodeURIComponent(filterEndDate);
+    } else {
+        window.location.href = redirectUrl + currentPage + "&items_per_page=" + itemsPerPage +
+            "&searchOrderId=" + encodeURIComponent(searchOrderId) +
+            "&searchEquipment=" + encodeURIComponent(searchEquipment) +
+            "&searchClient=" + encodeURIComponent(searchClient) +
+            "&filterStatus=" + encodeURIComponent(filterStatus) +
+            "&filterPriority=" + encodeURIComponent(filterPriority) +
+            "&filterStartDate=" + encodeURIComponent(filterStartDate) +
+            "&filterEndDate=" + encodeURIComponent(filterEndDate);
+    }
 }
 
 function clearFilters() {
-    // Lógica para limpar os filtros e exibir todas as ordens de serviço novamente
+    // Limpar os valores dos campos de filtro
+    document.getElementById("searchOrderId").value = "";
+    document.getElementById("searchEquipment").value = "";
+    document.getElementById("searchClient").value = "";
+    document.getElementById("filterStatus").value = "";
+    document.getElementById("filterPriority").value = "";
+    document.getElementById("filterStartDate").value = "";
+    document.getElementById("filterEndDate").value = "";
+
+    // Redirecionar para a rota /ordens sem parâmetros de consulta
+    window.location.href = "/ordens?page=1&items_per_page=10";
+}
+
+function confirmStatusChange(orderId, status, orderNumeroOrdem) {
+    // Abrir o modal de confirmação
+    var modal = new bootstrap.Modal(document.getElementById('confirmStatusChangeModal'));
+    modal.show();
+
+    // Configurar os dados do modal
+    document.getElementById('confirmStatusChangeModalLabel').innerText = 'Confirmar Alteração de Status: OS ' + orderNumeroOrdem + ' para ' + status ;
+    document.getElementById('confirmStatusChangeModal').setAttribute('data-order-id', orderId);
+    document.getElementById('confirmStatusChangeModal').setAttribute('data-status', status);
+}
+
+function saveStatusChange() {
+    var orderId = document.getElementById('confirmStatusChangeModal').getAttribute('data-order-id');
+    var status = document.getElementById('confirmStatusChangeModal').getAttribute('data-status');
+
+    // Enviar os dados para a rota ordem_status via AJAX
+    fetch('/ordem_status/' + orderId, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'novo_status=' + encodeURIComponent(status),
+    }).then(function(response) {
+        if (response.ok) {
+            // Sucesso: Redirecionar para a página de ordens
+            window.location.href = '/ordens';
+        } else {
+            // Erro: Exibir mensagem de erro
+            console.error('Erro ao atualizar status da ordem.');
+        }
+    }).catch(function(error) {
+        console.error('Erro ao atualizar status da ordem:', error);
+    });
 }
 
 function updateProgressBar(orderId, status) {
@@ -186,6 +313,30 @@ function updateProgressBar(orderId, status) {
         progressBar.style.width = "100%";
         progressBar.setAttribute("aria-valuenow", "100");
     }
+}
+
+function confirmDelete(orderId) {
+    var modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+    modal.show();
+    document.getElementById('confirmDeleteModal').setAttribute('data-order-id', orderId);
+}
+
+function deleteOrder() {
+    var orderId = document.getElementById('confirmDeleteModal').getAttribute('data-order-id');
+    // Enviar a solicitação de exclusão para o servidor
+    fetch('/ordem_delete/' + orderId, {
+        method: 'POST',
+    }).then(function(response) {
+        if (response.ok) {
+            // Sucesso: Redirecionar para a página de ordens
+            window.location.href = '/ordens';
+        } else {
+            // Erro: Exibir mensagem de erro
+            console.error('Erro ao excluir a ordem de serviço.');
+        }
+    }).catch(function(error) {
+        console.error('Erro ao excluir a ordem de serviço:', error);
+    });
 }
 </script>
 

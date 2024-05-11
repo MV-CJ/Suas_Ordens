@@ -1,0 +1,160 @@
+{% extends "base/base_template.html" %}
+
+{% block title %}Criar produto ou serviço{% endblock %}
+
+{% block main_title %}Criar produto ou serviço{% endblock %}
+
+{% block sub_title %}Cadastro de produto ou serviço{% endblock %}
+
+{% block content %}
+<!-- Modal -->
+<div class="modal fade" id="camposFaltandoModal" tabindex="-1" aria-labelledby="camposFaltandoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="camposFaltandoModalLabel">Campos Faltando</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+            <p id="camposFaltandoTexto"></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+    </div>
+    </div>
+</div>
+
+
+<!-- Conteúdo específico desta página -->
+<div>
+    <!-- Conteúdo vai aqui -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header"><i class="fas fa-user me-1"></i>Cadastro de Produtos ou Serviços</div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('dashboard.criar_item') }}" id="form-item">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="descricao" class="form-label">Descrição</label>
+                                <input type="text" class="form-control" id="descricao" name="descricao" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="codigo" class="form-label">Código</label>
+                                <input type="text" class="form-control" id="codigo" name="codigo" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="preco" class="form-label">Preço</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="text" class="form-control input-mask" id="preco" name="preco" value="0,00">
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="categoria_item" class="form-label">Categoria</label>
+                                <select class="form-control form-select" id="categoria_item" name="categoria_item"> 
+                                    <option value="servicos">Serviços</option>
+                                    <option value="produtos">Produtos</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success" onclick="validarFormulario()">Salvar</button>
+                            <a href="{{ url_for('dashboard.listar_itens') }}" class="btn btn-danger">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Função para formatar o valor como moeda brasileira (BRL)
+function formatarMoeda(valor) {
+    // Remover caracteres não numéricos
+    valor = valor.replace(/\D/g, '');
+
+    // Remover zeros à esquerda
+    valor = valor.replace(/^0+/, '');
+
+    // Se o valor for vazio, retornar vazio
+    if (valor === '') return '';
+
+    // Obter a parte inteira e decimal do valor
+    var parteInteira = valor.substring(0, valor.length - 2);
+    var parteDecimal = valor.substring(valor.length - 2);
+
+    // Adicionar vírgula como separador de milhares
+    parteInteira = parteInteira.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    // Formatar o valor para o padrão de moeda brasileiro (BRL)
+    valor = parteInteira + ',' + parteDecimal;
+
+    return valor;
+}
+
+window.onload = function() {
+    // Selecionar o campo de preço
+    var precoCampo = document.getElementById('preco');
+
+    // Adicionar um ouvinte de evento de entrada (input) para o campo de preço
+    precoCampo.addEventListener('input', function() {
+        // Obter o valor atual do campo
+        var valorAtual = precoCampo.value;
+
+        // Formatar o valor em tempo real
+        precoCampo.value = formatarMoeda(valorAtual);
+    });
+};
+
+// Função para validar o formulário antes de enviar
+function validarFormulario() {
+    console.log("Validando formulário...");
+    var campos = document.querySelectorAll('#form-item input[type="text"]');
+    var camposVazios = [];
+
+    campos.forEach(function(campo) {
+        if (campo.value.trim() === '') {
+            campo.classList.add('is-invalid');
+            camposVazios.push(campo.getAttribute('id'));
+        } else {
+            campo.classList.remove('is-invalid'); // Remover a classe is-invalid quando preenchido
+        }
+    });
+
+    // Verificar se o campo de preço está vazio
+    var precoCampo = document.getElementById('preco');
+    if (precoCampo.value.trim() === '') {
+        precoCampo.classList.add('is-invalid');
+        camposVazios.push('preco');
+    } else {
+        precoCampo.classList.remove('is-invalid'); // Remover a classe is-invalid quando preenchido
+    }
+
+    if (camposVazios.length > 0) {
+        var camposVaziosNomes = camposVazios.map(function(campoId) {
+            return document.querySelector('label[for="' + campoId + '"]').textContent;
+        });
+
+        // Exibir o modal com os campos faltando
+        var camposFaltandoTexto = 'Por favor, preencha todos os campos obrigatórios: ' + camposVaziosNomes.join(', ');
+        document.getElementById('camposFaltandoTexto').textContent = camposFaltandoTexto;
+        var camposFaltandoModal = new bootstrap.Modal(document.getElementById('camposFaltandoModal'));
+        camposFaltandoModal.show();
+    } else {
+        console.log("Formulário validado com sucesso. Enviando formulário...");
+        document.getElementById('form-item').submit();
+    }
+}
+</script>
+
+
+<style>
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+
+</style>
+{% endblock %}

@@ -12,29 +12,33 @@
     <!-- Conteúdo vai aqui -->
     <div class="row">
         <div class="col-xl-3 col-md-6">
-            <div class="card bg-primary text-white mb-4">
-                <div class="card-body d-flex align-items-center"> <!-- Usamos as classes flexíveis para alinhar os itens verticalmente -->
-                    <span class="fs-4 flex-grow-1">Criar uma Nova Ordem</span> <!-- Aumentamos o tamanho do texto para 4 vezes e fazemos ele ocupar todo o espaço disponível -->
-                    <i class="fa-solid fa-file-circle-plus fa-3x ms-3"></i> <!-- Usamos o ícone "fa-shoe-prints" e aumentamos o tamanho para 3 vezes -->
+            <a class="card-link" href="ordem_form">
+                <div class="card bg-primary text-white mb-4">
+                    <div class="card-body d-flex align-items-center">
+                        <span class="fs-4 flex-grow-1">Nova Ordem de Serviço</span>
+                        <i class="fa-solid fa-file-circle-plus fa-3x ms-3"></i>
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-between">
+                        <a class="small text-white" href="ordens">Gerenciamento de Ordens de Serviço</a>
+                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                    </div>
                 </div>
-                <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white" href="ordem_form">{{ total_ordens }} - ordens criadas</a>
-                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                </div>
-            </div>
+            </a>
         </div>
 
         <div class="col-xl-3 col-md-6">
-            <div class="card bg-success text-white mb-4">
-                <div class="card-body d-flex align-items-center"> <!-- Usamos as classes flexíveis para alinhar os itens verticalmente -->
-                    <span class="fs-4 flex-grow-1">Concluídas</span> <!-- Aumentamos o tamanho do texto para 4 vezes e fazemos ele ocupar todo o espaço disponível -->
-                    <i class="fas fa-thumbs-up fa-3x ms-3"></i> <!-- Aumentamos o tamanho do ícone para 3 vezes e adicionamos uma margem à esquerda -->
+            <a class="card-link" href="criar_item">
+                <div class="card text-bg-secondary text-white mb-4">
+                    <div class="card-body d-flex align-items-center">
+                        <span class="fs-4 flex-grow-1">Novo Produto/Serviço</span>
+                        <i class="fas fa-cubes fa-3x ms-3"></i>
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-between">
+                        <a class="small text-white" href="itens">Gerenciamento de Produtos e Serviço</a>
+                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                    </div>
                 </div>
-                <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="#">{{ ordens_concluidas }} - ordens concluídas</a>
-                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                </div>
-            </div>
+            </a>
         </div>
 
         <div class="col-xl-3 col-md-6">
@@ -51,16 +55,18 @@
         </div>
 
         <div class="col-xl-3 col-md-6">
-            <div class="card bg-warning text-white mb-4">
-                <div class="card-body d-flex align-items-center"> <!-- Usamos as classes flexíveis para alinhar os itens verticalmente -->
-                    <span class="fs-4 flex-grow-1">Clientes Cadastrados</span> <!-- Aumentamos o tamanho do texto para 4 vezes e fazemos ele ocupar todo o espaço disponível -->
-                    <i class="fa-solid fa-building-user fa-3x ms-3"></i> <!-- Usamos o ícone "fa-user-check" e aumentamos o tamanho para 3 vezes -->
+            <a class="card-link" href="criar_cliente">
+                <div class="card bg-warning text-white mb-4">
+                    <div class="card-body d-flex align-items-center"> 
+                        <span class="fs-4 flex-grow-1">Cadastrar Cliente</span>
+                        <i class="fa-solid fa-building-user fa-3x ms-3"></i>
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-between">
+                        <a class="small text-white" href="client">Gerenciamento de Clientes</a>
+                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                    </div>
                 </div>
-                <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="#">Falta criar :({{ clientes_cadastrados }}</a>
-                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                </div>
-            </div>
+            </a>
         </div>
     </div>
 
