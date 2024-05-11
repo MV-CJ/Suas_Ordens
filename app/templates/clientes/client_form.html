@@ -1,0 +1,184 @@
+{% extends "base/base_template.html" %}
+
+{% block title %}Criar Cliente{% endblock %}
+
+{% block main_title %}Criar Novo Cliente{% endblock %}
+
+{% block sub_title %}Cadastro de Cliente{% endblock %}
+
+{% block content %}
+<!-- Modal -->
+<div class="modal fade" id="camposFaltandoModal" tabindex="-1" aria-labelledby="camposFaltandoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="camposFaltandoModalLabel">Atenção!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+            <p id="camposFaltandoTexto"></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+    </div>
+    </div>
+</div>
+
+<!-- Conteúdo específico desta página -->
+<div>
+    <!-- Conteúdo vai aqui -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header"><i class="fas fa-user me-1"></i>Cadastro de Cliente</div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('dashboard.criar_cliente') }}" id="form-cliente">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nome" class="form-label">Nome</label>
+                                <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex: Maria da Silva" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Ex: maria.silva@email.com" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="logradouro" class="form-label">Logradouro</label>
+                                <input type="text" class="form-control" id="logradouro" name="logradouro" placeholder="Ex: Av. das Flores, 123">
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="cep" class="form-label">CEP</label>
+                                <input type="text" class="form-control" id="cep" name="cep" placeholder="Ex: 04567-890">
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="numero" class="form-label">Número</label>
+                                <input type="text" class="form-control" id="numero" name="numero" placeholder="Ex: 456">
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="telefone" class="form-label">Telefone</label>
+                                <input type="text" class="form-control" id="telefone" name="telefone" placeholder="Ex: (11) 9876-5432">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="bairro" class="form-label">Bairro</label>
+                                <input type="text" class="form-control" id="bairro" name="bairro" placeholder="Ex: Jardim Primavera">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="cpf_cnpj" class="form-label">CPF ou CNPJ</label>
+                                <input type="text" class="form-control" id="cpf_cnpj" name="cpf_cnpj" placeholder="Ex: 123.456.789-01" required>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="operador" class="form-label">Estado</label>
+                                <select class="form-control form-select" id="uf" name="uf">
+                                    <option value="AC">Acre</option>
+                                    <option value="AL">Alagoas</option>
+                                    <option value="AP">Amapá</option>
+                                    <option value="AM">Amazonas</option>
+                                    <option value="BA">Bahia</option>
+                                    <option value="CE">Ceará</option>
+                                    <option value="DF">Distrito Federal</option>
+                                    <option value="ES">Espírito Santo</option>
+                                    <option value="GO">Goiás</option>
+                                    <option value="MA">Maranhão</option>
+                                    <option value="MT">Mato Grosso</option>
+                                    <option value="MS">Mato Grosso do Sul</option>
+                                    <option value="MG">Minas Gerais</option>
+                                    <option value="PA">Pará</option>
+                                    <option value="PB">Paraíba</option>
+                                    <option value="PR">Paraná</option>
+                                    <option value="PE">Pernambuco</option>
+                                    <option value="PI">Piauí</option>
+                                    <option value="RJ">Rio de Janeiro</option>
+                                    <option value="RN">Rio Grande do Norte</option>
+                                    <option value="RS">Rio Grande do Sul</option>
+                                    <option value="RO">Rondônia</option>
+                                    <option value="RR">Roraima</option>
+                                    <option value="SC">Santa Catarina</option>
+                                    <option value="SP">São Paulo</option>
+                                    <option value="SE">Sergipe</option>
+                                    <option value="TO">Tocantins</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-success" onclick="validarFormulario()">Salvar</button>
+                            <a href="client" class="btn btn-danger">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.6/jquery.inputmask.min.js"></script>
+
+<script>
+function validarFormulario() {
+    console.log("Validando formulário...");
+    var campos = document.querySelectorAll('#form-cliente input[type="text"], #form-cliente input[type="email"], #form-cliente input[type="file"]');
+    var camposVazios = [];
+
+    campos.forEach(function(campo) {
+        if ((campo.type === 'text' || campo.type === 'email' || campo.type === 'file') && campo.value.trim() === '') {
+            campo.classList.add('is-invalid');
+            camposVazios.push(campo.getAttribute('id'));
+        } else {
+            campo.classList.remove('is-invalid'); // Remover a classe is-invalid quando preenchido
+        }
+    });
+
+    if (camposVazios.length > 0) {
+        var camposVaziosNomes = camposVazios.map(function(campoId) {
+            return document.querySelector('label[for="' + campoId + '"]').textContent;
+        });
+
+        // Exibir o modal com os campos faltando
+        var camposFaltandoTexto = 'Por favor, preencha todos os campos obrigatórios: ' + camposVaziosNomes.join(', ');
+        document.getElementById('camposFaltandoTexto').textContent = camposFaltandoTexto;
+        var camposFaltandoModal = new bootstrap.Modal(document.getElementById('camposFaltandoModal'));
+        camposFaltandoModal.show();
+    } else {
+        console.log("Formulário validado com sucesso. Enviando formulário...");
+        $.ajax({
+            url: "{{ url_for('dashboard.criar_cliente') }}",
+            method: 'POST',
+            data: $('#form-cliente').serialize(),
+            success: function(response) {
+                window.location.href = response.redirect; // Redirecione para a página desejada após o sucesso
+            },
+            error: function(xhr) {
+                var response = JSON.parse(xhr.responseText);
+                if (response.error) {
+                    document.getElementById('camposFaltandoTexto').textContent = response.error;
+                    var camposFaltandoModal = new bootstrap.Modal(document.getElementById('camposFaltandoModal'));
+                    camposFaltandoModal.show();
+                }
+            }
+        });
+    }
+}
+$(document).ready(function() {
+    // Máscara para o campo de CEP
+    $('#cep').inputmask('99999-999');
+
+    // Máscara para o campo de CPF/CNPJ
+    $('#cpf_cnpj').inputmask({
+        mask: ['999.999.999-99', '99.999.999/9999-99'],
+        greedy: false,
+        placeholder: ''
+    });
+
+    // Máscara para o campo de telefone
+    $('#telefone').inputmask('(99) 9999[9]-9999');
+});
+</script>
+
+<style>
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+</style>
+{% endblock %}

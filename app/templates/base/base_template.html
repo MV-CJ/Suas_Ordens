@@ -57,7 +57,31 @@
                             <a class="nav-link" href="ordens"><i class="fas fa-tasks me-2"></i>Gerenciar ordens</a>
                         </nav>
                     </div>
-                    
+
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseClientes" aria-expanded="false" aria-controls="collapseClientes">
+                        <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
+                        Clientes
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse" id="collapseClientes" aria-labelledby="headingClientes" data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="criar_cliente"><i class="fas fa-user-plus me-2"></i>Cadastrar Cliente</a>
+                            <a class="nav-link" href="client"><i class="fas fa-users-cog me-2"></i>Gerenciar Clientes</a>
+                        </nav>
+                    </div>
+
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseProdutos" aria-expanded="false" aria-controls="collapseProdutos">
+                        <div class="sb-nav-link-icon"><i class="fas fa-cube"></i></div>
+                        Produtos/Serviços
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+                    <div class="collapse" id="collapseProdutos" aria-labelledby="headingProdutos" data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="criar_item"><i class="fas fa-plus-circle me-2"></i>Criar Produto/Serviço</a>
+                            <a class="nav-link" href="itens"><i class="fas fa-shopping-basket me-2"></i>Gerenciar Produtos/Serviços</a>
+                        </nav>
+                    </div>
+
                     <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
                         <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
                         Pages
@@ -138,6 +162,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.6/inputmask.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.6/jquery.inputmask.min.js"></script>
+
 <!-- Adicione o script do jQuery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <!-- Adicione o script da biblioteca de formatação de número -->

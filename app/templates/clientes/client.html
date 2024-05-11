@@ -1,0 +1,257 @@
+{% extends "base/base_template.html" %}
+
+{% block title %}Tela de Gerenciamento{% endblock %}
+
+{% block main_title %}Tela de Gerenciamento{% endblock %}
+
+{% block sub_title %}Clientes{% endblock %}
+
+{% block content %}
+
+<!-- Modais -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Tem certeza de que deseja excluir este cliente?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Confirmar Exclusão</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div>
+    <div class="row">
+        <div class="col-md-2">
+            <input type="text" class="form-control" id="searchCpfCnpj" placeholder="Pesquisar por CNPJ/CPF">
+        </div>
+        <div class="col-md-3">
+            <input type="text" class="form-control" id="searchNome" placeholder="Pesquisar por Nome">
+        </div>
+        <div class="col-md-2">
+            <input type="text" class="form-control" id="searchTelefone" placeholder="Pesquisar por Telefone">
+        </div>
+        <div class="col-md-3">
+            <input type="text" class="form-control" id="searchEmail" placeholder="Pesquisar por E-mail">
+        </div>
+        <div class="col-sm-2">
+            <select class="form-control form-select" id="searchUF">
+                <option value="" disabled selected hidden>Filtrar por UF...</option>
+                <option value="AC">Acre</option>
+                <option value="AL">Alagoas</option>
+                <option value="AP">Amapá</option>
+                <option value="AM">Amazonas</option>
+                <option value="BA">Bahia</option>
+                <option value="CE">Ceará</option>
+                <option value="DF">Distrito Federal</option>
+                <option value="ES">Espírito Santo</option>
+                <option value="GO">Goiás</option>
+                <option value="MA">Maranhão</option>
+                <option value="MT">Mato Grosso</option>
+                <option value="MS">Mato Grosso do Sul</option>
+                <option value="MG">Minas Gerais</option>
+                <option value="PA">Pará</option>
+                <option value="PB">Paraíba</option>
+                <option value="PR">Paraná</option>
+                <option value="PE">Pernambuco</option>
+                <option value="PI">Piauí</option>
+                <option value="RJ">Rio de Janeiro</option>
+                <option value="RN">Rio Grande do Norte</option>
+                <option value="RS">Rio Grande do Sul</option>
+                <option value="RO">Rondônia</option>
+                <option value="RR">Roraima</option>
+                <option value="SC">Santa Catarina</option>
+                <option value="SP">São Paulo</option>
+                <option value="SE">Sergipe</option>
+                <option value="TO">Tocantins</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mt-3">  
+        <div class="col-md-6">
+            <button class="btn btn-primary mr-2" onclick="searchClientes()"><i class="fas fa-search"></i> Pesquisar</button>
+            <button class="btn btn-secondary mr-2" onclick="clearFilters()"><i class="fas fa-times"></i> Limpar Filtros</button>
+            <a href="criar_cliente" class="btn btn-success"><i class="fas fa-plus"></i> Adicionar novo cliente</a>
+        </div>
+    </div>
+</div>
+<hr>
+    <div class="container-fluid">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">Nome</th>
+                    <th scope="col">E-mail</th>
+                    <th scope="col">Logradouro</th>
+                    <th scope="col">CEP</th>
+                    <th scope="col">Número</th>
+                    <th scope="col">Bairro</th>
+                    <th scope="col">CPF/CNPJ</th>
+                    <th scope="col">Telefone</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Data de Criação</th>
+                    <th scope="col">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td>{{ cliente.nome }}</td>
+                    <td>{{ cliente.email }}</td>
+                    <td>{{ cliente.logradouro }}</td>
+                    <td>{{ cliente.cep }}</td>
+                    <td>{{ cliente.numero }}</td>
+                    <td>{{ cliente.bairro }}</td>
+                    <td>{{ cliente.cpf_cnpj }}</td>
+                    <td>{{ cliente.telefone }}</td>
+                    <td>{{ cliente.uf }}</td>
+                    <td>{{ cliente.created_at.strftime('%d/%m/%Y') }}</td>
+                    <td>
+                        <a href="{{ url_for('dashboard.editar_cliente', cliente_id=cliente.id) }}" class="btn btn-primary btn-sm">Editar</a>
+                        <button type="button" class="btn btn-danger btn-sm delete-btn" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-cliente-id="{{ cliente.id }}">Deletar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+        <!-- Controles de paginação -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if current_page != 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&items_per_page={{ items_per_page }}" aria-label="Primeira página">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ current_page - 1 }}&items_per_page={{ items_per_page }}" aria-label="Anterior">
+                        <span aria-hidden="true">&lsaquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                {% for num_page in range(1, total_pages + 1) %}
+                <li class="page-item {% if num_page == current_page %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num_page }}&items_per_page={{ items_per_page }}">{{ num_page }}</a>
+                </li>
+                {% endfor %}
+                {% if current_page != total_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ current_page + 1 }}&items_per_page={{ items_per_page }}" aria-label="Próxima">
+                        <span aria-hidden="true">&rsaquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ total_pages }}&items_per_page={{ items_per_page }}" aria-label="Última página">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% if not clientes %}
+        <!-- Se não houver clientes, exiba a imagem no lugar da tabela -->
+        <div class="text-center">
+            <img src="static/assets/img/404-bot.png" alt="Imagem error" class="img-fluid" style="max-width: 600px;">
+        </div>
+        {% endif %}
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Obtenha o botão de exclusão no modal e o modal de confirmação
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+
+    // Adicione um evento de clique ao botão de exclusão no modal
+    confirmDeleteBtn.addEventListener('click', function () {
+        // Faça algo quando o botão de exclusão no modal for clicado
+        const clienteId = this.dataset.clienteId; // Obtenha o ID do cliente armazenado nos dados
+
+        // Aqui você pode enviar uma solicitação AJAX para excluir o cliente com o ID armazenado
+        // Por exemplo, você pode fazer algo assim:
+        fetch(`/excluir_cliente/${clienteId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            // Verifique se a solicitação foi bem-sucedida
+            if (!response.ok) {
+                throw new Error('Erro ao excluir cliente');
+            }
+            // Redirecione para a página de clientes após a exclusão (substitua "YOUR_CLIENTES_URL" pela URL correta da página de clientes)
+            window.location.href = '/client';
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            // Manipule o erro, se necessário
+        });
+    });
+
+    // Obtenha todos os botões de exclusão na tabela e adicione um evento de clique a cada um
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            // Quando um botão de exclusão na tabela é clicado, armazene o ID do cliente no botão de exclusão no modal
+            const clienteId = this.dataset.clienteId;
+            confirmDeleteBtn.dataset.clienteId = clienteId;
+        });
+    });
+});
+
+function searchClientes() {
+    var searchNome = document.getElementById('searchNome').value;
+    var searchEmail = document.getElementById('searchEmail').value;
+    var searchCpfCnpj = document.getElementById('searchCpfCnpj').value;
+    var searchTelefone = document.getElementById('searchTelefone').value;
+    var searchUF = document.getElementById('searchUF').value;
+
+    // Construir a URL com os parâmetros de filtro
+    var url = '/client?page=1';
+
+    if (searchNome) {
+        url += '&searchNome=' + encodeURIComponent(searchNome);
+    }
+    if (searchEmail) {
+        url += '&searchEmail=' + encodeURIComponent(searchEmail);
+    }
+    if (searchCpfCnpj) {
+        url += '&searchCpfCnpj=' + encodeURIComponent(searchCpfCnpj);
+    }
+    if (searchTelefone) {
+        url += '&searchTelefone=' + encodeURIComponent(searchTelefone);
+    }
+    if (searchUF) {
+        url += '&searchUF=' + encodeURIComponent(searchUF);
+    }
+    
+    // Redirecionar para a URL com os parâmetros de filtro
+    window.location.href = url;
+}
+
+function clearFilters() {
+    // Limpar todos os campos de filtro
+    document.getElementById('searchNome').value = '';
+    document.getElementById('searchEmail').value = '';
+    document.getElementById('searchCpfCnpj').value = '';
+    document.getElementById('searchTelefone').value = '';
+    document.getElementById('searchUF').value = '';
+
+    // Redirecionar para a rota /client sem filtros
+    window.location.href = '/client?page=1';
+}
+</script>
+        
+
+{% endblock %}

@@ -1,8 +1,9 @@
 # Use a imagem oficial do Python
 FROM python:3.8-slim
 
-# Instala dependências de compilação do PostgreSQL
-RUN apt-get update && apt-get install -y libpq-dev
+# Instala dependências de compilação do PostgreSQL e do wkhtmltopdf
+RUN apt-get update && \
+    apt-get install -y libpq-dev wkhtmltopdf
 
 # Defina o diretório de trabalho dentro do contêiner
 WORKDIR /app
@@ -21,4 +22,3 @@ EXPOSE 5000
 
 # Comando para executar a aplicação quando o contêiner for iniciado
 CMD ["python", "run.py"]
-

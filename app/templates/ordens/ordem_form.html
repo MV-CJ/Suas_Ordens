@@ -25,6 +25,34 @@
     </div>
 </div>
 
+<!-- Modal para adicionar serviço ou produto -->
+<div class="modal fade" id="modalAdicionarServicoProduto" tabindex="-1" aria-labelledby="modalAdicionarServicoProdutoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAdicionarServicoProdutoLabel">Adicionar Serviço ou Produto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Adicionando a barra de pesquisa dentro do modal -->
+                <input type="text" id="searchInputModal" class="form-control mb-3" placeholder="Buscar itens...">
+                <ul id="searchResultsModal" class="list-group"></ul>
+                <br>
+                <!-- Div para exibir o item selecionado -->
+                <div id="selectedItemContainer" style="display: none;">
+                    <h6>Item Selecionado:</h6>
+                    <div id="selectedItemDetails"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="salvarItemBtn">Salvar Item</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!-- Conteúdo específico desta página -->
 <div>
     <!-- Conteúdo vai aqui -->
@@ -51,20 +79,42 @@
 
                             <div class="col-md-4 mb-3">
                                 <label for="cliente" class="form-label">Cliente</label>
-                                <input type="text" class="form-control" id="cliente" name="cliente">
+                                <div class="input-group">
+                                    <select class="form-control form-select" id="cliente" name="cliente"> <!-- Atributo name definido como 'cliente' -->
+                                        <option value="" disabled selected hidden>Selecione um cliente</option> <!-- Placeholder -->
+                                        {% for cliente in clientes %}
+                                            <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button class="btn btn-success btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#modalCriarCliente">
+                                        <i class="fas fa-plus"></i> <!-- Ícone de sinal de "+" -->
+                                    </button>
+                                </div>
                             </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="cliente" class="form-label">Categoria</label>
+                                <div class="input-group">
+                                    <select class="form-control form-select" id="cliente" name="cliente"> <!-- Atributo name definido como 'cliente' -->
+                                        <option value="" disabled selected hidden>Selecione uma categoria...</option> <!-- Placeholder -->
+                                        {% for cliente in clientes %}
+                                            <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button class="btn btn-success btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#modalCriarCliente">
+                                        <i class="fas fa-plus"></i> <!-- Ícone de sinal de "+" -->
+                                    </button>
+                                </div>
+                            </div>
+
                             <div class="col-md-4 mb-3">
                                 <label for="equipamento" class="form-label">Equipamento</label>
                                 <input type="text" class="form-control" id="equipamento" name="equipamento">
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="categoria" class="form-label">Categoria</label>
-                                <input type="text" class="form-control" id="categoria" name="categoria">
-                            </div>
 
                             <div class="col-md-4 mb-3">
                                 <label for="prioridade" class="form-label">Prioridade</label>
-                                <select class="form-control" id="prioridade" name="prioridade">
+                                <select class="form-control form-select" id="prioridade" name="prioridade">
                                     <option value="Alto">Alto</option>
                                     <option value="Médio">Médio</option>
                                     <option value="Baixo">Baixo</option>
@@ -72,7 +122,7 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="status" class="form-label">Status</label>
-                                <select class="form-control" id="status" name="status">
+                                <select class="form-control form-select" id="status" name="status">
                                     <option value="Nao_iniciado">Não iniciado</option>
                                     <option value="Em_Andamento">Em Andamento</option>
                                     <option value="Aguardando_Cliente">Aguardando Cliente</option>
@@ -88,6 +138,31 @@
                                     <input type="text" class="form-control input-mask" id="vl_inicial" name="vl_inicial">
                                 </div>
                             </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="informacoesItemSelecionado" class="form-label"></label>
+                                <div id="informacoesItemSelecionado">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Descrição</th>
+                                                <th scope="col">Código</th>
+                                                <th scope="col">Categoria</th>
+                                                <th scope="col">Quantidade</th>
+                                                <th scope="col">Preço</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="selectedItemTableBody">
+                                            <!-- Aqui serão adicionadas as linhas da tabela com os itens selecionados -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Botão para adicionar serviço ou produto -->
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdicionarServicoProduto">
+                                Adicionar Serviço ou Produto
+                            </button>
 
                             <div class="col-md-12 mb-3">
                                 <label for="observacoes" class="form-label">Observações</label>
@@ -106,33 +181,297 @@
     </div>
 </div>
 
-<script>
-function validarFormulario() {
-    var campos = document.querySelectorAll('#form-ordem input[type="text"], #form-ordem input[type="date"], #form-ordem textarea:not(#observacoes)');
-    var camposVazios = [];
+<!-- Modal de Criação de Cliente -->
+<div class="modal fade" id="modalCriarCliente" tabindex="-1" aria-labelledby="modalCriarClienteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCriarClienteLabel">Criar Novo Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Campos de criação de cliente -->
+                <input type="text" class="form-control mb-3" id="nomeCliente" placeholder="Nome do Cliente">
+                <input type="email" class="form-control mb-3" id="emailCliente" placeholder="Email do Cliente">
+                <input type="text" class="form-control mb-3" id="logradouroCliente" placeholder="Logradouro">
+                <input type="text" class="form-control mb-3" id="cepCliente" placeholder="CEP">
+                <input type="text" class="form-control mb-3" id="numeroCliente" placeholder="Número">
+                <input type="text" class="form-control mb-3" id="bairroCliente" placeholder="Bairro">
+                <input type="text" class="form-control mb-3" id="cpfCnpjCliente" placeholder="CPF/CNPJ">
+                <input type="tel" class="form-control mb-3" id="telefoneCliente" placeholder="Telefone do Cliente">
+                <select class="form-control form-select" id="ufCliente" name="uf">
+                    <option value="" disabled selected hidden>Selecione o Estado...</option>
+                    <option value="AC">Acre</option>
+                    <option value="AL">Alagoas</option>
+                    <option value="AP">Amapá</option>
+                    <option value="AM">Amazonas</option>
+                    <option value="BA">Bahia</option>
+                    <option value="CE">Ceará</option>
+                    <option value="DF">Distrito Federal</option>
+                    <option value="ES">Espírito Santo</option>
+                    <option value="GO">Goiás</option>
+                    <option value="MA">Maranhão</option>
+                    <option value="MT">Mato Grosso</option>
+                    <option value="MS">Mato Grosso do Sul</option>
+                    <option value="MG">Minas Gerais</option>
+                    <option value="PA">Pará</option>
+                    <option value="PB">Paraíba</option>
+                    <option value="PR">Paraná</option>
+                    <option value="PE">Pernambuco</option>
+                    <option value="PI">Piauí</option>
+                    <option value="RJ">Rio de Janeiro</option>
+                    <option value="RN">Rio Grande do Norte</option>
+                    <option value="RS">Rio Grande do Sul</option>
+                    <option value="RO">Rondônia</option>
+                    <option value="RR">Roraima</option>
+                    <option value="SC">Santa Catarina</option>
+                    <option value="SP">São Paulo</option>
+                    <option value="SE">Sergipe</option>
+                    <option value="TO">Tocantins</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="salvarNovoCliente()">Salvar Cliente</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-    campos.forEach(function(campo) {
-        if ((campo.type === 'text' || campo.type === 'date') && campo.value.trim() === '') {
-            campo.classList.add('is-invalid');
-            camposVazios.push(campo.getAttribute('id'));
-        } else {
-            campo.classList.remove('is-invalid'); // Remover a classe is-invalid quando preenchido
+<style>
+    .list-group-item:hover {
+        background-color: #f5f5f5;
+        cursor: pointer;
+    }
+
+    .list-group-item.active {
+        background-color: #d3d3d3;
+    }
+
+    .qty-input {
+        width: 60px;
+    }
+
+    #selectedItemContainer {
+        border: 1px solid #ccc; /* Adiciona uma borda cinza */
+        background-color: #f9f9f9; /* Define um fundo cinza claro */
+        padding: 10px; /* Adiciona um espaçamento interno para tornar a área mais visível */
+        border-radius: 5px; /* Adiciona bordas arredondadas */
+    }
+</style>
+
+<script>
+let selectedItem = null;
+let selectedQty = 1; // Variável para armazenar a quantidade selecionada
+
+document.getElementById('salvarItemBtn').addEventListener('click', function() {
+    if (selectedItem !== null) {
+        const tableBody = document.getElementById('selectedItemTableBody');
+        const row = tableBody.insertRow();
+        const fields = ['descricao', 'codigo', 'categoria_item', 'quantidade', 'preco'];
+        fields.forEach(field => {
+            const cell = row.insertCell();
+            cell.textContent = selectedItem[field];
+        });
+        // Remove o item da lista de seleção
+        const index = searchResults.findIndex(item => item.id === selectedItem.id);
+        if (index !== -1) {
+            searchResults.splice(index, 1);
+        }
+        // Limpa a seleção
+        selectedItem = null;
+        // Fecha o modal
+        $('#modalAdicionarServicoProduto').modal('hide');
+        alert('Item salvo com sucesso!');
+    } else {
+        alert('Nenhum item selecionado.');
+    }
+});
+
+// Função para formatar um número como moeda
+function formatarMoeda(valor) {
+    return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+// Função para desformatar uma string de moeda para número
+function desformatarMoeda(valor) {
+    return parseFloat(valor.replace(/[^\d.,]/g, '').replace(',', '.'));
+}
+
+
+// Função para buscar itens e atualizar a lista de resultados no modal
+function buscarItens(searchTerm = '') {
+    // Fazer solicitação Ajax para buscar itens
+    fetch(`/buscar_itens?search_term=${searchTerm}`)
+        .then(response => response.json())
+        .then(data => {
+            // Limpar a lista de resultados
+            const searchResultsModal = document.getElementById('searchResultsModal');
+            searchResultsModal.innerHTML = '';
+
+            // Adicionar os novos resultados à lista
+            data.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.textContent = item.descricao;
+                listItem.classList.add('list-group-item');
+                listItem.classList.add('d-flex');
+                listItem.classList.add('justify-content-between');
+                listItem.classList.add('align-items-center');
+                listItem.addEventListener('click', function() {
+                    // Verifica se o item clicado é o mesmo item selecionado anteriormente
+                    if (selectedItem === item) {
+                        // Se for o mesmo item, desselecione-o
+                        listItem.classList.remove('active');
+                        selectedItem = null;
+                        // Oculta a div do item selecionado
+                        const selectedItemContainer = document.getElementById('selectedItemContainer');
+                        selectedItemContainer.style.display = 'none';
+                    } else {
+                        // Se for um novo item, remova a seleção do item anterior
+                        if (selectedItem !== null) {
+                            selectedItem.classList.remove('active');
+                        }
+                        // Seleciona o novo item
+                        listItem.classList.add('active');
+                        selectedItem = item;
+                        // Exibe os detalhes do novo item selecionado
+                        mostrarItemSelecionado(item);
+                    }
+                });
+                listItem.addEventListener('mouseenter', function() {
+                    // Ao passar o mouse sobre o item, adicione a classe 'hover' para destacar o item
+                    listItem.classList.add('hover');
+                });
+                listItem.addEventListener('mouseleave', function() {
+                    // Ao retirar o mouse do item, remova a classe 'hover'
+                    listItem.classList.remove('hover');
+                });
+
+                searchResultsModal.appendChild(listItem);
+            });
+
+            // Adicionar barra de rolagem se houver mais itens
+            searchResultsModal.style.maxHeight = '200px'; // Definindo uma altura máxima
+            searchResultsModal.style.overflowY = 'auto'; // Definindo overflow-y como 'auto'
+        })
+        .catch(error => console.error('Erro ao buscar itens:', error));
+}
+
+    // Função para mostrar o item selecionado
+function mostrarItemSelecionado(item) {
+    const selectedItemDetails = document.getElementById('selectedItemDetails');
+    selectedItemDetails.innerHTML = '';
+
+    // Adiciona todos os campos do item selecionado na div
+    const fields = ['descricao', 'codigo', 'categoria_item'];
+    fields.forEach(field => {
+        const fieldElement = document.createElement('p');
+        fieldElement.innerHTML = `<strong>${field}:</strong> ${item[field]}`;
+        selectedItemDetails.appendChild(fieldElement);
+    });
+
+    // Adiciona label e input para a quantidade
+    const qtyLabel = document.createElement('label');
+    qtyLabel.textContent = 'Quantidade:';
+    selectedItemDetails.appendChild(qtyLabel);
+    const qtyInput = document.createElement('input');
+    qtyInput.type = 'number';
+    qtyInput.min = '1';
+    qtyInput.value = '1';
+    qtyInput.classList.add('form-control');
+    qtyInput.addEventListener('input', function() {
+        // Atualiza a quantidade selecionada quando o usuário alterar o valor do input
+        item.quantidade = parseInt(this.value);
+    });
+    selectedItemDetails.appendChild(qtyInput);
+
+    // Adiciona label e input para o preço
+    const priceLabel = document.createElement('label');
+    priceLabel.textContent = 'Preço:';
+    selectedItemDetails.appendChild(priceLabel);
+    const priceInput = document.createElement('input');
+    priceInput.type = 'text'; // Alterado para texto para permitir entrada livre
+    priceInput.value = formatarMoeda(item.preco); // Formata o valor inicial
+    priceInput.classList.add('form-control');
+    priceInput.addEventListener('input', function() {
+        // Atualiza o preço quando o usuário alterar o valor do input
+        item.preco = desformatarMoeda(this.value); // Desformata o valor e atualiza
+        this.value = formatarMoeda(item.preco); // Reformatar o valor do preço
+    });
+    selectedItemDetails.appendChild(priceInput);
+
+    // Exibe a div do item selecionado
+    const selectedItemContainer = document.getElementById('selectedItemContainer');
+    selectedItemContainer.style.display = 'block';
+}
+    // Adicionar evento ao abrir o modal para buscar itens iniciais
+    const modalAdicionarServicoProduto = document.getElementById('modalAdicionarServicoProduto');
+    modalAdicionarServicoProduto.addEventListener('shown.bs.modal', function () {
+        buscarItens();
+    });
+
+    // Adicionar evento de entrada à barra de pesquisa para acionar a busca de itens
+    const searchInputModal = document.getElementById('searchInputModal');
+    searchInputModal.addEventListener('input', function () {
+        buscarItens(this.value);
+    });
+
+function salvarNovoCliente() {
+    var nome = document.getElementById('nomeCliente').value;
+    var email = document.getElementById('emailCliente').value;
+    var logradouro = document.getElementById('logradouroCliente').value;
+    var cep = document.getElementById('cepCliente').value;
+    var numero = document.getElementById('numeroCliente').value;
+    var bairro = document.getElementById('bairroCliente').value;
+    var cpf_cnpj = document.getElementById('cpfCnpjCliente').value;
+    var telefone = document.getElementById('telefoneCliente').value;
+    var uf = document.getElementById('ufCliente').value; // Corrigido para obter o valor do campo uf
+
+    $.ajax({
+        url: '/criar_cliente',
+        method: 'POST',
+        data: {
+            nome: nome,
+            email: email,
+            logradouro: logradouro,
+            cep: cep,
+            numero: numero,
+            bairro: bairro,
+            cpf_cnpj: cpf_cnpj,
+            telefone: telefone,
+            uf: uf // Atualizado para enviar o valor do campo uf
+        },
+        success: function(response) {
+            // Recarregar a página para atualizar a lista de clientes
+            location.reload();
+
+            // Fechar o modal (opcional)
+            $('#modalCriarCliente').modal('hide');
+
+            // Adicionar um console.log para mostrar a resposta do servidor
+            console.log('Cliente criado:', response);
+        },
+        error: function(xhr, status, error) {
+            console.error(error);
+        }
+    });
+}
+
+function atualizarFormularioClientes() {
+    // Fazer uma requisição AJAX para obter a lista atualizada de clientes
+    $.ajax({
+        url: '/obter_lista_clientes', // Rota para obter a lista de clientes
+        method: 'GET',
+        success: function(response) {
+            // Atualizar o HTML do select de clientes com a lista atualizada
+            $('#cliente').html(response);
+        },
+        error: function(xhr, status, error) {
+            // Lidar com erros, se necessário
+            console.error(error);
         }
     });
 
-    if (camposVazios.length > 0) {
-        var camposVaziosNomes = camposVazios.map(function(campoId) {
-            return document.querySelector('label[for="' + campoId + '"]').textContent;
-        });
-
-        // Exibir o modal com os campos faltando
-        var camposFaltandoTexto = 'Por favor, preencha todos os campos obrigatórios: ' + camposVaziosNomes.join(', ');
-        document.getElementById('camposFaltandoTexto').textContent = camposFaltandoTexto;
-        var camposFaltandoModal = new bootstrap.Modal(document.getElementById('camposFaltandoModal'));
-        camposFaltandoModal.show();
-    } else {
-        document.getElementById('form-ordem').submit();
-    }
 }
 </script>
 

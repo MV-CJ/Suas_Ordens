@@ -100,7 +100,7 @@
             <a href="ordem_form" class="btn btn-success"><i class="fas fa-plus"></i> Adicionar nova Ordem</a>
         </div>
     </div>
-
+    <hr>
     {% if orders_items %}
     <div class="row mt-3" id="cardContainer">
         <!-- Aqui você irá adicionar cards com os dados do pedido -->
@@ -143,7 +143,7 @@
                     <form action="{{ url_for('dashboard.ordem_delete', order_id=order.id) }}" method="post" style="display: inline;">
                         <button type="button" class="btn btn-danger" onclick="confirmDelete('{{ order.id }}')"><i class="fas fa-trash-alt"></i> Deletar</button>
                     </form>
-                    <a href="ordem_form" class="btn btn-secondary"><i class="fas fa-print"></i> Imprimir</a>
+                    <a href="{{ url_for('dashboard.gerar_pdf', order_id=order.id) }}" class="btn btn-secondary" target="_blank"><i class="fas fa-print"></i> Imprimir</a>
                     <!-- Conteúdo adicional, se necessário -->
                 </div>
             </div>

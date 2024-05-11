@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fatura</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+       .invoice-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+       .invoice-details strong {
+            color: #007BFF;
+        }
+       .invoice-details.details {
+            width: 50%;
+        }
+       .invoice-details.details p {
+            margin-bottom: 5px;
+        }
+       .invoice-details.details p:last-child {
+            margin-bottom: 0;
+        }
+       .invoice-details.details p strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+       .invoice-details.details p span {
+            display: block;
+            margin-top: 5px;
+        }
+       .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-details">
+        <div class="details">
+            <p><strong>Número OS:</strong> {{ ordem.numero_ordem }}</p>
+            <p><strong>Operador:</strong> {{ ordem.operador }}</p>
+            <p><strong>Data de Início:</strong> {{ ordem.data_inicio }}</p>
+            <p><strong>Previsão de Entrega:</strong> {{ ordem.previsao_entrega }}</p>
+            <p><strong>Cliente:</strong> {{ ordem.cliente }}</p>
+            <p><strong>Equipamento:</strong> {{ ordem.equipamento }}</p>
+            <p><strong>Categoria:</strong> {{ ordem.categoria }}</p>
+            <p><strong>Prioridade:</strong> {{ ordem.prioridade }}</p>
+            <p><strong>Status:</strong> {{ ordem.status }}</p>
+            <p><strong>Valor Inicial:</strong> {{ ordem.valor_inicial }}</p>
+            <p><strong>Observações:</strong> {{ ordem.observacoes }}</p>
+        </div>
+    </div>
+    <div class="footer">
+        <p>© 2024 Seu Negócio. Todos os direitos reservados.</p>
+    </div>
+</body>
+</html>
