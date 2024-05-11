@@ -1,0 +1,211 @@
+{% extends "base/base_template.html" %}
+
+{% block title %}Tela de Gerenciamento{% endblock %}
+
+{% block main_title %}Tela de Gerenciamento{% endblock %}
+
+{% block sub_title %}Produtos e Serviços{% endblock %}
+
+{% block content %}
+
+<!-- Modais -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Tem certeza de que deseja excluir este item?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <!-- Chame diretamente a função deleteItem com o itemId correspondente -->
+                <button type="button" class="btn btn-danger" id="confirmDeleteButton">Confirmar Exclusão</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <div class="row">
+        <div class="col-md-2">
+            <input type="text" class="form-control" id="searchCodigo" placeholder="Pesquisar por código">
+        </div>
+        <div class="col-md-2">
+            <input type="text" class="form-control" id="searchDescricao" placeholder="Pesquisar por descrição">
+        </div>
+        <div class="col-md-2">
+            <select class="form-control form-select" id="category_filter">
+                <option value="" disabled selected hidden>Categoria...</option>
+                <option value="produtos">Produtos</option>
+                <option value="servicos">Serviços</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mt-3">  
+        <div class="col-md-6">
+            <button class="btn btn-primary mr-2" onclick="searchItens()"><i class="fas fa-search"></i> Pesquisar</button>
+            <button class="btn btn-secondary mr-2" onclick="clearFilters()"><i class="fas fa-times"></i> Limpar Filtros</button>
+            <a href="criar_item" class="btn btn-success"><i class="fas fa-plus"></i> Adicionar novo item</a>
+        </div>
+    </div>
+</div>
+<hr>
+    <div class="container-fluid">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">Código</th>
+                    <th scope="col">Categoria</th>
+                    <th scope="col">Descrição</th>
+                    <th scope="col">Preço (R$)</th>
+                    <th scope="col">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in itens %}
+                <tr>
+                    <td>{{ item.codigo }}</td>
+                    <td>{{ item.categoria_item }}</td>
+                    <td>{{ item.descricao }}</td>
+                    <td>{{ item.preco }}</td>
+                    <td>
+                        <a href="{{ url_for('dashboard.editar_item', item_id=item.id) }}" class="btn btn-primary btn-sm">Editar</a>
+                        <button type="button" class="btn btn-danger btn-sm delete-btn" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-item-id="{{ item.id }}">Deletar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+        <!-- Controles de paginação -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if current_page != 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1&items_per_page={{ items_per_page }}" aria-label="Primeira página">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ current_page - 1 }}&items_per_page={{ items_per_page }}" aria-label="Anterior">
+                        <span aria-hidden="true">&lsaquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                {% for num_page in range(1, total_pages + 1) %}
+                <li class="page-item {% if num_page == current_page %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num_page }}&items_per_page={{ items_per_page }}">{{ num_page }}</a>
+                </li>
+                {% endfor %}
+                {% if current_page != total_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ current_page + 1 }}&items_per_page={{ items_per_page }}" aria-label="Próxima">
+                        <span aria-hidden="true">&rsaquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ total_pages }}&items_per_page={{ items_per_page }}" aria-label="Última página">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% if not itens %}
+        <!-- Se não houver itens, exiba a imagem no lugar da tabela -->
+        <div class="text-center">
+            <img src="static/assets/img/404-bot.png" alt="Imagem error" class="img-fluid" style="max-width: 600px;">
+        </div>
+        {% endif %}
+    </div>
+
+<script>
+function deleteItem(itemId) {
+    // Envia uma solicitação POST para excluir o item
+    fetch(`/excluir_item/${itemId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        // Se necessário, você pode enviar dados adicionais no corpo da solicitação
+        // body: JSON.stringify({ itemId: itemId })
+    })
+    .then(response => {
+        if (response.ok) {
+            // Atualize a página após a exclusão bem-sucedida
+            window.location.reload();
+        } else {
+            // Lidar com erros, se necessário
+            console.error('Erro ao excluir item');
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao excluir item:', error);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var deleteButtons = document.querySelectorAll('.delete-btn');
+    deleteButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            var itemId = button.getAttribute('data-item-id');
+            // Ao clicar no botão "Deletar", configure o botão "Confirmar Exclusão" para chamar a função deleteItem com o itemId correspondente
+            document.getElementById('confirmDeleteButton').onclick = function() {
+                deleteItem(itemId);
+            };
+        });
+    });
+});
+
+function searchItens() {
+    var searchCodigo = document.getElementById('searchCodigo').value;
+    var searchDescricao = document.getElementById('searchDescricao').value;
+    var category_filter = document.getElementById('category_filter').value;
+
+    // Construir a URL com os parâmetros de filtro
+    var url = '/itens?page=1';
+    if (searchCodigo) {
+        url += '&searchCodigo=' + encodeURIComponent(searchCodigo);
+    }
+    if (searchDescricao) {
+        url += '&searchDescricao=' + encodeURIComponent(searchDescricao);
+    }
+    if (category_filter) {
+        url += '&filterCategoriaItem=' + encodeURIComponent(category_filter);
+    }
+    
+    // Redirecionar para a URL com os parâmetros de filtro
+    window.location.href = url;
+}
+
+function clearFilters() {
+    // Limpar todos os campos de filtro
+    document.getElementById('searchCodigo').value = '';
+    document.getElementById('searchDescricao').value = '';
+    document.getElementById('category_filter').value = '';
+
+    // Redirecionar para a rota /itens sem filtros
+    window.location.href = '/itens?page=1';
+}
+
+// Formatando os preços na tabela
+document.addEventListener("DOMContentLoaded", function() {
+    var priceCells = document.querySelectorAll('td.price');
+    priceCells.forEach(function(cell) {
+        var price = parseFloat(cell.textContent.replace(',', '.')); // Remover o separador de milhares e substituir a vírgula decimal por ponto
+        cell.textContent = formatPrice(price);
+    });
+});
+
+// Função para formatar o preço para o padrão brasileiro
+function formatPrice(price) {
+    return 'R$ ' + price.toFixed(2).replace('.', ',').replace(/\d(?=(\d{3})+,)/g, '$&.');
+}
+</script>
+    
+        
+
+{% endblock %}

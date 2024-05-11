@@ -150,6 +150,7 @@
                                                 <th scope="col">Categoria</th>
                                                 <th scope="col">Quantidade</th>
                                                 <th scope="col">Preço</th>
+                                                <th scope="col">Ação</th>
                                             </tr>
                                         </thead>
                                         <tbody id="selectedItemTableBody">
@@ -160,9 +161,11 @@
                             </div>
 
                             <!-- Botão para adicionar serviço ou produto -->
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdicionarServicoProduto">
-                                Adicionar Serviço ou Produto
-                            </button>
+                            <div class="col-md-4 mb-3">
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAdicionarServicoProduto">
+                                        Adicionar Serviço ou Produto
+                                    </button>
+                            </div>
 
                             <div class="col-md-12 mb-3">
                                 <label for="observacoes" class="form-label">Observações</label>
@@ -258,33 +261,82 @@
         padding: 10px; /* Adiciona um espaçamento interno para tornar a área mais visível */
         border-radius: 5px; /* Adiciona bordas arredondadas */
     }
+
+
 </style>
 
 <script>
+let searchResults = [];
 let selectedItem = null;
 let selectedQty = 1; // Variável para armazenar a quantidade selecionada
+
+// Função para adicionar o evento de clique ao ícone da lixeira
+function adicionarEventoRemoverItem(trashIcon, row, selectedItem) {
+    trashIcon.addEventListener('click', function() {
+        console.log("Ícone de lixeira clicado!"); // Debug
+        removerItem(row, selectedItem); // Chama a função para remover o item quando o ícone de lixeira é clicado
+    });
+}
+
+// Função para remover o item da tabela e da lista de seleção
+function removerItem(row, selectedItem) {
+    console.log("Removendo item:", selectedItem); // Debug
+    const tableBody = document.getElementById('selectedItemTableBody');
+    tableBody.removeChild(row); // Remove a linha da tabela
+
+    // Remove o item da lista de seleção
+    const index = searchResults.findIndex(item => item.id === selectedItem.id);
+    if (index!== -1) {
+        searchResults.splice(index, 1);
+    }
+}
 
 document.getElementById('salvarItemBtn').addEventListener('click', function() {
     if (selectedItem !== null) {
         const tableBody = document.getElementById('selectedItemTableBody');
         const row = tableBody.insertRow();
         const fields = ['descricao', 'codigo', 'categoria_item', 'quantidade', 'preco'];
+        
+        // Adiciona células com os dados do item
         fields.forEach(field => {
             const cell = row.insertCell();
-            cell.textContent = selectedItem[field];
+            if (field === 'quantidade') {
+                // Verificar se a quantidade está definida, senão definir como 1
+                const quantidade = selectedItem[field] !== undefined ? selectedItem[field] : 1;
+                cell.textContent = quantidade;
+            } else {
+                cell.textContent = selectedItem[field];
+            }
         });
+
+        // Adiciona célula com o ícone de lixeira para remover o item
+        const trashCell = row.insertCell();
+        const removeButton = document.createElement('button');
+        removeButton.classList.add('btn', 'btn-danger', 'btn-sm');
+        const trashIcon = document.createElement('i');
+        trashIcon.classList.add('fas', 'fa-trash-alt');
+        trashIcon.setAttribute('aria-hidden', 'true');
+        removeButton.appendChild(trashIcon);
+
+        // Adiciona o evento de clique ao botão
+        removeButton.addEventListener('click', function() {
+            removerItem(row, selectedItem); // Chama a função para remover o item quando o botão de remover é clicado
+        });
+
+        trashCell.appendChild(removeButton);
+        
         // Remove o item da lista de seleção
         const index = searchResults.findIndex(item => item.id === selectedItem.id);
         if (index !== -1) {
             searchResults.splice(index, 1);
         }
+        
         // Limpa a seleção
         selectedItem = null;
+        
         // Fecha o modal
         $('#modalAdicionarServicoProduto').modal('hide');
-        alert('Item salvo com sucesso!');
-    } else {
-        alert('Nenhum item selecionado.');
+        
     }
 });
 
@@ -297,7 +349,6 @@ function formatarMoeda(valor) {
 function desformatarMoeda(valor) {
     return parseFloat(valor.replace(/[^\d.,]/g, '').replace(',', '.'));
 }
-
 
 // Função para buscar itens e atualizar a lista de resultados no modal
 function buscarItens(searchTerm = '') {
@@ -357,7 +408,7 @@ function buscarItens(searchTerm = '') {
         .catch(error => console.error('Erro ao buscar itens:', error));
 }
 
-    // Função para mostrar o item selecionado
+// Função para mostrar o item selecionado
 function mostrarItemSelecionado(item) {
     const selectedItemDetails = document.getElementById('selectedItemDetails');
     selectedItemDetails.innerHTML = '';
@@ -377,7 +428,7 @@ function mostrarItemSelecionado(item) {
     const qtyInput = document.createElement('input');
     qtyInput.type = 'number';
     qtyInput.min = '1';
-    qtyInput.value = '1';
+    qtyInput.value = (item.quantidade !== null && item.quantidade !== undefined && item.quantidade !== "") ? item.quantidade : '1'; // Definindo o valor inicial como 1 se nenhum valor for recebido
     qtyInput.classList.add('form-control');
     qtyInput.addEventListener('input', function() {
         // Atualiza a quantidade selecionada quando o usuário alterar o valor do input
@@ -404,17 +455,18 @@ function mostrarItemSelecionado(item) {
     const selectedItemContainer = document.getElementById('selectedItemContainer');
     selectedItemContainer.style.display = 'block';
 }
-    // Adicionar evento ao abrir o modal para buscar itens iniciais
-    const modalAdicionarServicoProduto = document.getElementById('modalAdicionarServicoProduto');
-    modalAdicionarServicoProduto.addEventListener('shown.bs.modal', function () {
-        buscarItens();
-    });
 
-    // Adicionar evento de entrada à barra de pesquisa para acionar a busca de itens
-    const searchInputModal = document.getElementById('searchInputModal');
-    searchInputModal.addEventListener('input', function () {
-        buscarItens(this.value);
-    });
+// Adicionar evento ao abrir o modal para buscar itens iniciais
+const modalAdicionarServicoProduto = document.getElementById('modalAdicionarServicoProduto');
+modalAdicionarServicoProduto.addEventListener('shown.bs.modal', function () {
+    buscarItens();
+});
+
+// Adicionar evento de entrada à barra de pesquisa para acionar a busca de itens
+const searchInputModal = document.getElementById('searchInputModal');
+searchInputModal.addEventListener('input', function () {
+    buscarItens(this.value);
+});
 
 function salvarNovoCliente() {
     var nome = document.getElementById('nomeCliente').value;
@@ -471,8 +523,9 @@ function atualizarFormularioClientes() {
             console.error(error);
         }
     });
-
 }
+
+
 </script>
 
 <style>
