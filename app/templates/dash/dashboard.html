@@ -34,7 +34,7 @@
                         <i class="fas fa-cubes fa-3x ms-3"></i>
                     </div>
                     <div class="card-footer d-flex align-items-center justify-content-between">
-                        <a class="small text-white" href="itens">Gerenciamento de Produtos e Serviço</a>
+                        <a class="small text-white" href="itens">Gerenciamento de Produtos e Serviços</a>
                         <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                     </div>
                 </div>
@@ -42,21 +42,8 @@
         </div>
 
         <div class="col-xl-3 col-md-6">
-            <div class="card bg-danger text-white mb-4">
-                <div class="card-body d-flex align-items-center"> <!-- Usamos as classes flexíveis para alinhar os itens verticalmente -->
-                    <span class="fs-4 flex-grow-1">Canceladas</span> <!-- Aumentamos o tamanho do texto para 4 vezes e fazemos ele ocupar todo o espaço disponível -->
-                    <i class="fa-solid fa-face-frown-open fa-3x ms-3"></i><!-- Usamos o ícone "fa-times-circle" e aumentamos o tamanho para 3 vezes -->
-                </div>
-                <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="#">{{ ordens_canceladas }} - ordens canceladas</a>
-                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6">
             <a class="card-link" href="criar_cliente">
-                <div class="card bg-warning text-white mb-4">
+                <div class="card bg-success text-white mb-4">
                     <div class="card-body d-flex align-items-center"> 
                         <span class="fs-4 flex-grow-1">Cadastrar Cliente</span>
                         <i class="fa-solid fa-building-user fa-3x ms-3"></i>
@@ -68,6 +55,22 @@
                 </div>
             </a>
         </div>
+
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body d-flex align-items-center"> <!-- Usamos as classes flexíveis para alinhar os itens verticalmente -->
+                    <span class="fs-4 flex-grow-1">Minhas tarefas</span> <!-- Aumentamos o tamanho do texto para 4 vezes e fazemos ele ocupar todo o espaço disponível -->
+                    <i class="fas fa-calendar-alt fa-3x ms-3"></i><!-- Usamos o ícone "fa-calendar-alt" para representar tarefas diárias e aumentamos o tamanho para 3 vezes -->
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="#">{{ tarefas_diarias }} Área para salvar suas notas importantes</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        
     </div>
 
     <div class="row">

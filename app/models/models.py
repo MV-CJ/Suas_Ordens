@@ -1,12 +1,15 @@
 from app import db
 from uuid import uuid4
 from flask_login import UserMixin
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Sequence,text
 from sqlalchemy.ext.declarative import declarative_base
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime 
 import uuid
+from sqlalchemy.dialects.postgresql import JSONB
 
+#TODO -> MODELS USUARIOS
 class Users(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -27,6 +30,7 @@ class Users(db.Model, UserMixin):
     def get_id(self): 
         return str(self.id)
 
+#TODO -> MODELS CLIENTE
 class Client(db.Model):
     __tablename__ = 'clients'
 
@@ -45,6 +49,7 @@ class Client(db.Model):
     def __repr__(self):
         return f'<Client {self.nome}>'
 
+#TODO -> MODELS ORDENS
 class Order(db.Model):
     __tablename__ = 'orders'
 
@@ -55,20 +60,23 @@ class Order(db.Model):
     previsao_entrega = db.Column(db.Date)
     cliente = db.Column(db.String(100), nullable=False)
     equipamento = db.Column(db.String(100), nullable=False)
-    categoria = db.Column(db.String(100), nullable=False)
+    forma_pagamento = db.Column(db.String(100), nullable=False)
     prioridade = db.Column(db.String(20), nullable=False)
     status = db.Column(db.String(50), nullable=False)
-    valor_inicial = db.Column(db.Float, nullable=False)
     observacoes = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.now)  # Adicione esta linha
-
+    categoria_ordem = db.Column(db.String(100), nullable=False)  # Adicionando categoria_ordem
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    valor_total = db.Column(db.Float)  # Adicionando o campo valor_total
+    items = db.Column(JSONB)
+    
     def __repr__(self):
         return f'''
                 Order('{self.numero_ordem}', '{self.operador}', '{self.data_inicio}', '{self.previsao_entrega}', 
-                '{self.cliente}', '{self.equipamento}', '{self.categoria}', '{self.prioridade}', '{self.status}', 
-                '{self.valor_inicial}', '{self.observacoes}')'''
+                '{self.cliente}', '{self.equipamento}', '{self.forma_pagamento}', '{self.prioridade}', '{self.status}', 
+                '{self.categoria_ordem}','{self.valor_total}', '{self.observacoes}', '{self.items}')'''
+
                 
-                
+#TODO -> MODELS ITENS
 class Item(db.Model):
     __tablename__ = 'items'  # Nome da tabela no banco de dados
 
@@ -80,3 +88,20 @@ class Item(db.Model):
 
     def __repr__(self):
         return f"Item('{self.descricao}', '{self.codigo}', '{self.preco}', '{self.categoria_item}')"
+
+#TODO -> MODELS CATEGORIAS
+class Categoria(db.Model):
+    __tablename__ = 'categorias'
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100), nullable=False, unique=True)
+    def __repr__(self):
+        return f"Categoria('{self.nome}')"
+
+#TODO -> MODELS ESTADOS
+class Estado(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sigla = db.Column(db.String(2), unique=True, nullable=False)
+    nome = db.Column(db.String(100), nullable=False)
+
+    def __repr__(self):
+        return f"<Estado {self.nome}>"
