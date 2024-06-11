@@ -8,17 +8,63 @@
 
 {% block content %}
 <!-- Conteúdo específico desta página -->
+<!-- Modal -->
+<div class="modal fade" id="camposFaltandoModal" tabindex="-1" aria-labelledby="camposFaltandoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="camposFaltandoModalLabel">Campos Faltando</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+            <p id="camposFaltandoTexto"></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+    </div>
+    </div>
+</div>
+
+<!-- Modal para adicionar serviço ou produto -->
+<div class="modal fade" id="modalAdicionarServicoProduto" tabindex="-1" aria-labelledby="modalAdicionarServicoProdutoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAdicionarServicoProdutoLabel">Adicionar Serviço ou Produto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Adicionando a barra de pesquisa dentro do modal -->
+                <input type="text" id="searchInputModal" class="form-control mb-3" placeholder="Buscar itens...">
+                <ul id="searchResultsModal" class="list-group"></ul>
+                <br>
+                <!-- Div para exibir o item selecionado -->
+                <div id="selectedItemContainer" style="display: none;">
+                    <h6>Item Selecionado:</h6>
+                    <div id="selectedItemDetails"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="salvarItemBtn">Salvar Item</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div>
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="card mb-4">
-                <div class="card-header"><i class="fas fa-edit me-1"></i>Edição de Ordem</div>
+                <div class="card-header"><i class="fas fa-edit me-1"></i>Edição de Ordem N° {{ ordem.numero_ordem }}</div>
                 <div class="card-body">
                     <form method="post" action="{{ url_for('dashboard.ordem_edit', order_id=ordem.id) }}">
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label for="operador" class="form-label">Operador</label>
-                                <input type="text" class="form-control" id="operador" name="operador" value="{{ ordem.operador }}" required>
+                                <input type="text" class="form-control" id="operador" name="operador" value="{{ ordem.operador }}" readonly disabled required>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="data_inicio" class="form-label">Data de Início</label>
@@ -31,38 +77,120 @@
 
                             <div class="col-md-4 mb-3">
                                 <label for="cliente" class="form-label">Cliente</label>
-                                <input type="text" class="form-control form-select" id="cliente" name="cliente" value="{{ ordem.cliente }}" required>
+                                <div class="input-group">
+                                    <select class="form-control form-select" id="cliente" name="cliente" required> <!-- Atributo name definido como 'cliente' -->
+                                        <option value="{{ ordem.cliente }}" disabled selected hidden>{{ ordem.cliente }}</option> <!-- Placeholder -->
+                                        {% for cliente in clientes %}
+                                            <option value="{{ cliente.id }}">{{ cliente.nome }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button class="btn btn-success btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#modalCriarCliente">
+                                        <i class="fas fa-plus"></i> <!-- Ícone de sinal de "+" -->
+                                    </button>
+                                </div>
                             </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="forma_pagamento" class="form-label">Forma de Pagamento</label>
+                                <div class="input-group">
+                                    <select class="form-control form-select" id="forma_pagamento" name="forma_pagamento">
+                                        <option value="{{ ordem.forma_pagamento }}" disabled selected hidden>{{ ordem.forma_pagamento }}</option>
+                                        {% for opcao_pagamento in opcoes_pagamento %}
+                                            <option>{{ opcao_pagamento }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
                             <div class="col-md-4 mb-3">
                                 <label for="equipamento" class="form-label">Equipamento</label>
                                 <input type="text" class="form-control" id="equipamento" name="equipamento" value="{{ ordem.equipamento }}" required>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="categoria" class="form-label">Categoria</label>
-                                <input type="text" class="form-control form-select" id="categoria" name="categoria" value="{{ ordem.categoria }}" required>
-                            </div>
 
                             <div class="col-md-4 mb-3">
                                 <label for="prioridade" class="form-label">Prioridade</label>
-                                <input type="text" class="form-control form-select" id="prioridade" name="prioridade" value="{{ ordem.prioridade }}" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="status" class="form-label">Status</label>
-                                <input type="text" class="form-control form-select" id="status" name="status" value="{{ ordem.status }}" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="vl_inicial" class="form-label">Valor Inicial</label>
-                                <input type="text" class="form-control" id="vl_inicial" name="vl_inicial" value="{{ ordem.valor_inicial }}" required>
+                                <select class="form-control form-select" id="prioridade" name="prioridade">
+                                    <option value="{{ ordem.prioridade }}" disabled selected hidden>{{ ordem.prioridade }}</option>
+                                    <option value="Alto">Alto</option>
+                                    <option value="Médio">Médio</option>
+                                    <option value="Baixo">Baixo</option>
+                                </select>
                             </div>
 
+                            <div class="col-md-4 mb-3">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-control form-select" id="status" name="status">
+                                    <option value="{{ ordem.status }}" disabled selected hidden>{{ ordem.status }}</option>
+                                    <option value="Nao_iniciado">Não iniciado</option>
+                                    <option value="Em_Andamento">Em Andamento</option>
+                                    <option value="Aguardando_Cliente">Aguardando Cliente</option>
+                                    <option value="Aguardando_Peças">Aguardando Peças</option>
+                                    <option value="Cancelada">Cancelada</option>
+                                    <option value="Concluída">Concluída</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="categoria" class="form-label">Categoria</label>
+                                <div class="input-group">
+                                    <select class="form-control form-select" id="categoria" name="categoria"> <!-- Atributo name definido como 'categoria' -->
+                                        <option value="{{ ordem.categoria_ordem }}" disabled selected hidden>{{ ordem.categoria_ordem }}</option>
+                                        {% for categoria in categorias %}
+                                            <option value="{{ categoria.nome }}">{{ categoria.nome }}</option> <!-- Usando o nome da categoria como valor -->
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            <h6>Itens</h6>
+                            <div class="col-md-12 mb-3">
+                                <label for="informacoesItemSelecionado" class="form-label"></label>
+                                <div id="informacoesItemSelecionado">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" id='desc'>Descrição</th>
+                                                <th scope="col">Código</th>
+                                                <th scope="col">Categoria</th>
+                                                <th scope="col">Quantidade</th>
+                                                <th scope="col">Preço</th>
+                                                <th scope="col">Valor Total</th>
+                                                <th scope="col">Ação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="selectedItemTableBody">
+                                            <!-- Aqui serão adicionadas as linhas da tabela com os itens selecionados -->
+                                            <input type="hidden" id="itemsField" name="items" value="">
+                                        </tbody>
+                                        
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Botão para adicionar serviço ou produto -->
+                            <div class="col-md-4 mb-3">
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAdicionarServicoProduto">
+                                        Adicionar Serviço ou Produto
+                                    </button>
+                            </div>
+                            <div id="totalItens" name="totalItens" class="col-xl-4 mb-1 text-end total-itens-div">
+                                <strong>Total da ordem:</strong> <span id="totalItensValor">R$ 0,00</span>
+                                <input type="hidden" id="valor_total_hidden" name="valor_total" value="0.00">
+
+
+                            </div>
+                            <hr>
                             <div class="col-md-12 mb-3">
                                 <label for="observacoes" class="form-label">Observações</label>
-                                <textarea class="form-control" id="observacoes" name="observacoes" rows="4">{{ ordem.observacoes }}</textarea>
+                                <textarea class="form-control" id="observacoes" name="observacoes" name="observacoes">{{ ordem.observacoes }}</textarea>
                             </div>
 
                         </div>
-                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-                        <a href="../ordens" class="btn btn-danger">Cancelar</a>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success">Salvar Alterações</button>
+                            <a href="../ordens" class="btn btn-danger">Cancelar</a>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -70,33 +198,716 @@
     </div>
 </div>
 
-<script>
-function validarFormulario() {
-    var campos = document.querySelectorAll('#form-ordem input[type="text"], #form-ordem textarea:not(#observacoes)');
-    var camposVazios = [];
+<!-- Modal de Criação de Cliente -->
+<div class="modal fade" id="modalCriarCliente" tabindex="-1" aria-labelledby="modalCriarClienteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCriarClienteLabel">Criar Novo Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Campos de criação de cliente -->
+                <input type="text" class="form-control mb-3" id="nomeCliente" placeholder="Nome do Cliente">
+                <input type="email" class="form-control mb-3" id="emailCliente" placeholder="Email do Cliente">
+                <input type="text" class="form-control mb-3" id="logradouroCliente" placeholder="Logradouro">
+                <input type="text" class="form-control mb-3" id="cepCliente" placeholder="CEP">
+                <input type="text" class="form-control mb-3" id="numeroCliente" placeholder="Número">
+                <input type="text" class="form-control mb-3" id="bairroCliente" placeholder="Bairro">
+                <input type="text" class="form-control mb-3" id="cpfCnpjCliente" placeholder="CPF/CNPJ">
+                <input type="tel" class="form-control mb-3" id="telefoneCliente" placeholder="Telefone do Cliente">
+                <select class="form-control form-select" id="ufCliente" name="uf">
+                    <option value="" disabled selected hidden>Selecione o Estado...</option>
+                    {% for estado in estados %}
+                        <option value="{{ estado.sigla }}">{{ estado.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="salvarNovoCliente()">Salvar Cliente</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-    campos.forEach(function(campo) {
-        if (campo.value.trim() === '') {
-            campo.classList.add('is-invalid');
-            camposVazios.push(campo.getAttribute('id'));
-        } else {
-            campo.classList.remove('is-invalid');
-        }
+<style>
+    .list-group-item:hover {
+        background-color: #f5f5f5;
+        cursor: pointer;
+    }
+
+    .list-group-item.active {
+        background-color: #d3d3d3;
+    }
+
+    .qty-input {
+        width: 60px;
+    }
+
+    #selectedItemContainer {
+        border: 1px solid #ccc; /* Adiciona uma borda cinza */
+        background-color: #f9f9f9; /* Define um fundo cinza claro */
+        padding: 10px; /* Adiciona um espaçamento interno para tornar a área mais visível */
+        border-radius: 5px; /* Adiciona bordas arredondadas */
+    }
+
+
+</style>
+
+
+<script>
+    let listaDeItens = {{ items|safe }};
+    let searchResults = [];
+    let selectedItem = null;
+    let selectedQty = 1; // Variável para armazenar a quantidade selecionada
+    let nextItemId = 1; // Contador global para o próximo identificador de item
+
+
+// Função para inicializar os itens na tabela ao carregar a página
+// Função para inicializar os itens na tabela ao carregar a página
+function inicializarItens() {
+    const tableBody = document.getElementById('selectedItemTableBody');
+
+    // Limpa a tabela antes de adicionar os itens
+    tableBody.innerHTML = '';
+
+    // Itera sobre a lista de itens e adiciona cada um à tabela
+    listaDeItens.forEach(item => {
+        const newRow = tableBody.insertRow();
+
+        // Adiciona células com os dados do item
+        const fields = ['descricao', 'codigo', 'categoria', 'quantidade'];
+        fields.forEach(field => {
+            const cell = newRow.insertCell();
+            cell.textContent = item[field];
+        });
+
+        // Adiciona o preço original do item
+        const priceCell = newRow.insertCell();
+        priceCell.textContent = formatarMoeda(item.preco);
+
+        // Adiciona o valor total do item
+        const totalCell = newRow.insertCell();
+        const totalValue = item.preco * item.quantidade;
+        totalCell.textContent = formatarMoeda(totalValue);
+        item.valorTotal = totalValue;
+
+        // Adiciona o ícone de lixeira para remover o item
+        const trashCell = newRow.insertCell();
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.classList.add('btn', 'btn-danger', 'btn-sm');
+        const trashIcon = document.createElement('i');
+        trashIcon.classList.add('fas', 'fa-trash-alt');
+        trashIcon.setAttribute('aria-hidden', 'true');
+        removeButton.appendChild(trashIcon);
+
+        // Adiciona evento de clique ao botão para remover o item
+        removeButton.addEventListener('click', function() {
+            const row = this.parentNode.parentNode;
+            const rowIndex = row.rowIndex;
+            removerItemByRowIndex(rowIndex - 1);
+            atualizarValorTotalOrdem();
+        });
+
+        trashCell.appendChild(removeButton);
+
+        // Adiciona o item à lista de itens
+        //adicionarItem(item.descricao, item.codigo, item.categoria, item.quantidade, item.preco, totalValue);
     });
 
-    if (camposVazios.length > 0) {
-        var camposVaziosNomes = camposVazios.map(function(campoId) {
-            return document.querySelector('label[for="' + campoId + '"]').textContent;
+    // Atualiza o valor total da ordem
+    atualizarValorTotalOrdem();
+}
+
+// Chama a função de inicialização ao carregar a página
+document.addEventListener('DOMContentLoaded', inicializarItens);
+
+
+function verificarItemExistente(codigo) {
+    const itemExiste = listaDeItens.some(item => item.codigo === codigo);
+    return itemExiste;
+}
+//>>>>>>>>>>>>>>>>>>>>> FUNÇÕES PARA O MODAL <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// Função para buscar itens e atualizar a lista de resultados no modal
+// Função para buscar itens e atualizar a lista de resultados no modal
+function buscarItens(searchTerm = '') {
+    // Fazer solicitação Ajax para buscar itens
+    fetch(`/buscar_itens?search_term=${searchTerm}`)
+    .then(response => response.json())
+    .then(data => {
+        // Limpar a lista de resultados
+        const searchResultsModal = document.getElementById('searchResultsModal');
+        searchResultsModal.innerHTML = '';
+
+        // Adicionar os novos resultados à lista
+        data.forEach(item => {
+            const listItem = document.createElement('li');
+            listItem.textContent = item.descricao;
+            listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+            listItem.addEventListener('click', function() {
+                // Verifica se o item clicado é o mesmo item selecionado anteriormente
+                if (selectedItem === item) {
+                    // Se for o mesmo item, desselecione-o
+                    listItem.classList.remove('active');
+                    selectedItem = null;
+                    // Oculta a div do item selecionado
+                    const selectedItemContainer = document.getElementById('selectedItemContainer');
+                    if (selectedItemContainer) {
+                        selectedItemContainer.style.display = 'none';
+                    }
+                } else {
+                    // Se for um novo item, remova a seleção do item anterior
+                    if (selectedItem !== null) {
+                        selectedItem.classList.remove('active');
+                    }
+                    // Seleciona o novo item
+                    listItem.classList.add('active');
+                    selectedItem = item;
+                    // Exibe os detalhes do novo item selecionado
+                    mostrarItemSelecionado(item);
+                }
+            });
+            listItem.addEventListener('mouseenter', function() {
+                // Ao passar o mouse sobre o item, adicione a classe 'hover' para destacar o item
+                listItem.classList.add('hover');
+            });
+            listItem.addEventListener('mouseleave', function() {
+                // Ao retirar o mouse do item, remova a classe 'hover'
+                listItem.classList.remove('hover');
+            });
+
+            searchResultsModal.appendChild(listItem);
         });
+
+        // Adicionar barra de rolagem se houver mais itens
+        searchResultsModal.style.maxHeight = '200px'; // Definindo uma altura máxima
+        searchResultsModal.style.overflowY = 'auto'; // Definindo overflow-y como 'auto'
+
+        // Limpar a mensagem de erro, se existir
+        const itemErrorMessage = document.getElementById('itemErrorMessage');
+        if (itemErrorMessage) {
+            itemErrorMessage.textContent = '';
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao buscar itens:', error);
+        // Exibir mensagem de erro, se o elemento existir
+        const itemErrorMessage = document.getElementById('itemErrorMessage');
+        if (itemErrorMessage) {
+            itemErrorMessage.textContent = 'Erro ao buscar itens. Por favor, tente novamente.';
+        }
+    });
+}
+
+// Adicionar evento ao abrir o modal para buscar itens iniciais
+document.getElementById('modalAdicionarServicoProduto').addEventListener('shown.bs.modal', function () {
+    buscarItens();
+});
+
+
+// Adicionar evento de entrada à barra de pesquisa para acionar a busca de itens
+document.getElementById('searchInputModal').addEventListener('input', function () {
+    buscarItens(this.value);
+});
+
+// Função para mostrar o item selecionado
+function mostrarItemSelecionado(item) {
+    const selectedItemDetails = document.getElementById('selectedItemDetails');
+    selectedItemDetails.innerHTML = '';
+
+    // Adiciona todos os campos do item selecionado na div
+    const fields = ['descricao', 'codigo', 'categoria_item'];
+    fields.forEach(field => {
+        const fieldElement = document.createElement('p');
+        fieldElement.innerHTML = `<strong>${field}:</strong> ${item[field]}`;
+        selectedItemDetails.appendChild(fieldElement);
+    });
+
+    // Adiciona label e input para a quantidade
+    const qtyLabel = document.createElement('label');
+    qtyLabel.textContent = 'Quantidade:';
+    selectedItemDetails.appendChild(qtyLabel);
+    const qtyInput = document.createElement('input');
+    qtyInput.type = 'number';
+    qtyInput.min = '1';
+    qtyInput.value = (item.quantidade !== null && item.quantidade !== undefined && item.quantidade !== "") ? item.quantidade : '1'; // Definindo o valor inicial como 1 se nenhum valor for recebido
+    qtyInput.classList.add('form-control');
+    qtyInput.addEventListener('input', function() {
+        // Atualiza a quantidade selecionada quando o usuário alterar o valor do input
+        item.quantidade = parseInt(this.value);
+        // Atualiza a quantidade diretamente na listaDeItens
+        const index = listaDeItens.findIndex(i => i.codigo === item.codigo);
+        if (index !== -1) {
+            listaDeItens[index].quantidade = parseInt(this.value);
+        }
+        // Atualiza o valor total da ordem
+        atualizarValorTotalOrdem();
+    });
+    selectedItemDetails.appendChild(qtyInput);
+
+    // Adiciona label e input para o preço
+    const priceLabel = document.createElement('label');
+    priceLabel.textContent = 'Preço:';
+    selectedItemDetails.appendChild(priceLabel);
+    const priceInput = document.createElement('input');
+    priceInput.type = 'text'; // Alterado para texto para permitir entrada livre
+    priceInput.value = formatarMoeda(item.preco); // Formata o preço antes de exibi-lo na interface
+    priceInput.classList.add('form-control');
+    priceInput.addEventListener('input', function() {
+        // Atualiza o preço quando o usuário alterar o valor do input
+        item.preco = desformatarMoeda(this.value); // Desformata o valor e atualiza
+        this.value = formatarMoeda(item.preco); // Reformatar o valor do preço
+        // Atualiza o preço diretamente na listaDeItens
+        const index = listaDeItens.findIndex(i => i.codigo === item.codigo);
+        if (index !== -1) {
+            listaDeItens[index].preco = item.preco;
+        }
+        // Atualiza o valor total da ordem
+        atualizarValorTotalOrdem();
+    });
+    selectedItemDetails.appendChild(priceInput);
+
+    // Exibe a div do item selecionado
+    document.getElementById('selectedItemContainer').style.display = 'block';
+}
+
+//Adiciona os itens da busca do modal para o formulario (front)
+document.getElementById('salvarItemBtn').addEventListener('click', function() {
+    if (selectedItem !== null) {
+        const tableBody = document.getElementById('selectedItemTableBody');
+        const newRow = tableBody.insertRow();
+
+        // Incrementar o itemId global e associá-lo à nova linha da tabela
+        const itemId = nextItemId++;
+        newRow.dataset.itemId = itemId;
+        const itemJaExiste = verificarItemExistente(selectedItem.codigo);
+        if (itemJaExiste) {
+            // Se o item já existir na lista, exibir um alerta
+            alert('Este item já está na lista.');
+            return; // Impedir a adição duplicada
+        }
+        // Adiciona células com os dados do item
+        const fields = ['descricao', 'codigo', 'categoria_item', 'quantidade'];
+        fields.forEach(field => {
+            const cell = newRow.insertCell();
+            if (field === 'quantidade') {
+                const quantidade = selectedItem[field] !== undefined && !isNaN(selectedItem[field]) ? selectedItem[field] : 1;
+                cell.textContent = quantidade;
+                selectedItem.quantidade = quantidade;
+            } else {
+                cell.textContent = selectedItem[field];
+            }
+        });
+
+        // Adicione o preço original do item
+        const priceCell = newRow.insertCell();
+        priceCell.textContent = formatarMoeda(selectedItem.preco);
+
+        // Adiciona o valor total do item
+        const totalCell = newRow.insertCell();
+        const totalValue = selectedItem.preco * selectedItem.quantidade;
+        totalCell.textContent = formatarMoeda(totalValue);
+
+        // Adiciona o ícone de lixeira para remover o item
+        const trashCell = newRow.insertCell();
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button'; 
+        removeButton.classList.add('btn', 'btn-danger', 'btn-sm');
+        const trashIcon = document.createElement('i');
+        trashIcon.classList.add('fas', 'fa-trash-alt');
+        trashIcon.setAttribute('aria-hidden', 'true');
+        removeButton.appendChild(trashIcon);
+
+        // Adiciona evento de clique ao botão para remover o item
+        removeButton.addEventListener('click', function() {
+            const row = this.parentNode.parentNode;
+            const rowIndex = row.rowIndex; // Obtém o índice da linha na tabela
+            const itemId = row.dataset.itemId;
+            removerItemByRowIndex(rowIndex - 1); // Chama a função removerItemByRowIndex com o índice da linha corrigido
+            atualizarValorTotalOrdem();
+        });
+        
+
+        trashCell.appendChild(removeButton);
+
+        // Verifica se o item já está na listaDeItens antes de adicioná-lo
+        const itemAlreadyExists = listaDeItens.some(item => item.codigo === selectedItem.codigo);
+        if (!itemAlreadyExists) {
+            // Adiciona o item à lista de itens apenas se ele ainda não estiver presente
+            adicionarItem(selectedItem.descricao, selectedItem.codigo, selectedItem.categoria_item, selectedItem.quantidade, selectedItem.preco, totalValue);
+            atualizarValorTotalOrdem();
+        }
+
+        // Limpa a seleção e fecha o modal
+        selectedItem = null;
+        $('#modalAdicionarServicoProduto').modal('hide'); // Certifique-se de que o modal está sendo fechado
+
+        // Limpa os campos do modal explicitamente, verificando se os elementos existem primeiro
+        const descricaoItem = document.getElementById('descricaoItem');
+        const codigoItem = document.getElementById('codigoItem');
+        const categoriaItem = document.getElementById('categoriaItem');
+        const quantidadeItem = document.getElementById('quantidadeItem');
+
+        if (descricaoItem) descricaoItem.value = '';
+        if (codigoItem) codigoItem.value = '';
+        if (categoriaItem) categoriaItem.value = '';
+        if (quantidadeItem) quantidadeItem.value = '';
+
+        // Atualiza o somatório total
+        atualizarValorTotalOrdem();
+        adicionarItensAoFormulario();
+    }
+});
+
+
+// ENVIAR ITENS PARA O FORMULARIO(Back)
+// Função para atualizar o campo oculto com a lista de itens antes de enviar o formulário
+function atualizarItensForm() {
+    const valorTotalHiddenElement = document.getElementById('valor_total_hidden');
+    if (valorTotalHiddenElement) {
+        valorTotalHiddenElement.value = JSON.stringify(listaDeItens);
     } else {
+        console.error("O elemento 'valor_total_hidden' não foi encontrado.");
+    }
+}
+
+// Adiciona um evento ao formulário para chamar a função de atualização antes de submeter
+document.getElementById('form-ordem').addEventListener('submit', function(event) {
+    event.preventDefault(); // Evita o envio automático do formulário
+    atualizarItensForm(); // Atualiza os itens antes de enviar o formulário
+    this.submit(); // Submete o formulário
+});
+
+function adicionarItensAoFormulario() {
+    const form = document.getElementById('form-ordem');
+    const tableBody = document.getElementById('selectedItemTableBody');
+    
+    // Limpa os campos ocultos existentes antes de adicionar os novos itens
+    form.querySelectorAll('input[name^="itens["]').forEach(input => {
+        input.remove();
+    });
+
+    // Itera sobre as linhas da tabela e adiciona os itens ao formulário como campos ocultos
+    Array.from(tableBody.children).forEach((row, index) => {
+        const inputs = row.querySelectorAll('td:not(:last-child)');
+        const serializedItem = Array.from(inputs)
+            .map(cell => encodeURIComponent(cell.textContent.trim()))
+            .join('&');
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = `itens[${index}]`;
+        input.value = serializedItem;
+        form.appendChild(input);
+    });
+
+    // Limpa a seleção e a lista de resultados
+    selectedItem = null;
+    searchResults = [];
+    document.getElementById('searchResultsModal').innerHTML = ''; // Limpa a lista de resultados
+}
+// Adiciona um evento ao formulário para enviar os itens selecionados para o console.log antes do envio
+document.getElementById('form-ordem').addEventListener('submit', function(event) {
+    // Evita que o formulário seja enviado de imediato
+    event.preventDefault();
+    adicionarItensAoFormulario();
+    this.submit();
+});
+
+
+function adicionarItem(descricao, codigo, categoria, quantidade, preco, valorTotal) {
+    // Verifica se o item já existe na lista de itens
+    const itemIndex = listaDeItens.findIndex(item => item.codigo === codigo);
+
+    // Se o item já existir na lista de itens
+    if (itemIndex !== -1) {
+        // Atualiza a quantidade e o valor total do item existente na lista
+        listaDeItens[itemIndex].quantidade += quantidade;
+        listaDeItens[itemIndex].valorTotal += valorTotal;
+
+        // Atualiza a exibição na tabela, se aplicável
+        const row = document.querySelector(`tr[data-item-id="${listaDeItens[itemIndex].itemId}"]`);
+        if (row) {
+            row.cells[3].textContent = listaDeItens[itemIndex].quantidade;
+            row.cells[5].textContent = formatarMoeda(listaDeItens[itemIndex].valorTotal); // Formate o valor total antes de exibi-lo
+        }
+    } else {
+        // Adiciona o item à lista de itens
+        const itemId = nextItemId++;
+        listaDeItens.push({
+            descricao: descricao,
+            codigo: codigo,
+            categoria: categoria,
+            quantidade: quantidade,
+            preco: preco,
+            valorTotal: valorTotal,
+            itemId: itemId
+        });
+    }
+
+    // Atualiza o valor total da ordem
+    atualizarValorTotalOrdem();
+}
+function removerItem(itemId) {
+    console.log("Lista de itens antes da remoção:", listaDeItens); // Console.log antes da remoção
+    const tableBody = document.getElementById('selectedItemTableBody');
+    
+    // Encontra o índice do item na lista de itens com base no itemId
+    const itemIndex = listaDeItens.findIndex(item => item.itemId === itemId);
+
+    // Se o item for encontrado na lista
+    if (itemIndex !== -1) {
+        // Remove a linha da tabela
+        const row = document.querySelector(`tr[data-item-id="${itemId}"]`);
+        if (row) {
+            tableBody.removeChild(row);
+        }
+
+        // Remove o item da lista de itens
+        const valorTotalRemovido = listaDeItens[itemIndex].valorTotal;
+        listaDeItens.splice(itemIndex, 1);
+
+        console.log("Lista de itens após a remoção:", listaDeItens); // Console.log após a remoção
+
+        // Atualiza o campo oculto com a lista de itens antes de enviar o formulário
+        atualizarItensForm();
+
+        // Subtrai o valor total removido do valor total da ordem
+        const valorTotalOrdemElement = document.getElementById('valor_total_hidden');
+        if (valorTotalOrdemElement) {
+            const valorTotalOrdemAtual = parseFloat(valorTotalOrdemElement.value);
+            if (!isNaN(valorTotalOrdemAtual)) {
+                valorTotalOrdemElement.value = (valorTotalOrdemAtual - valorTotalRemovido).toFixed(2); // Atualiza o valor total da ordem
+            } else {
+                console.error("O valor total da ordem é inválido:", valorTotalOrdemAtual);
+            }
+        } else {
+            console.error("O campo 'valor_total_hidden' não foi encontrado.");
+        }
+
+        // Adiciona os itens atualizados ao formulário
+        adicionarItensAoFormulario();
+    } else {
+        console.error("Item não encontrado na lista de itens.");
+    }
+}
+
+function removerItemByRowIndex(rowIndex) {
+    console.log("Lista de itens antes da remoção:", listaDeItens); // Console.log antes da remoção
+
+    // Remove o item da lista de itens pelo índice
+    const itemRemovido = listaDeItens.splice(rowIndex, 1)[0];
+
+    // Remove a linha da tabela
+    const tableBody = document.getElementById('selectedItemTableBody');
+    tableBody.deleteRow(rowIndex);
+
+    console.log("Lista de itens após a remoção:", listaDeItens); // Console.log após a remoção
+
+    // Atualiza o campo oculto com a lista de itens antes de enviar o formulário
+    atualizarItensForm();
+
+    // Atualiza o valor total da ordem subtraindo o valor do item removido
+    const valorTotalOrdemElement = document.getElementById('valor_total_hidden');
+    if (valorTotalOrdemElement) {
+        const valorTotalOrdemAtual = parseFloat(valorTotalOrdemElement.value);
+        if (!isNaN(valorTotalOrdemAtual)) {
+            const novoValorTotalOrdem = valorTotalOrdemAtual - itemRemovido.valorTotal;
+            valorTotalOrdemElement.value = novoValorTotalOrdem.toFixed(2); // Atualiza o valor total da ordem
+            // Atualiza o valor total da ordem exibido na interface
+            const totalItensValor = document.getElementById('totalItensValor');
+            if (totalItensValor) {
+                totalItensValor.textContent = formatarMoeda(novoValorTotalOrdem);
+            }
+        } else {
+            console.error("O valor total da ordem é inválido:", valorTotalOrdemAtual);
+        }
+    } else {
+        console.error("O campo 'valor_total_hidden' não foi encontrado.");
+    }
+
+    // Atualiza o valor total da ordem após a remoção do item
+    atualizarValorTotalOrdem();
+
+    // Adiciona os itens atualizados ao formulário
+    adicionarItensAoFormulario();
+}
+
+//>>>>>>>>>>>>>>>>>>>>>>> Outras funções <<<<<<<<<<<<<<<<<<<<<<<<
+function atualizarSomatorioTotal() {
+    const tableBody = document.getElementById('selectedItemTableBody');
+    const totalItensDiv = document.getElementById('totalItens');
+    let totalSum = 0;
+
+    // Itera sobre as linhas da tabela para calcular o somatório total
+    for (let i = 0; i < tableBody.rows.length; i++) {
+        const row = tableBody.rows[i];
+        const totalCell = row.cells[5]; // A célula com o valor total está na posição 5
+        const totalValue = parseFloat(totalCell.textContent);
+        if (!isNaN(totalValue)) {
+            totalSum += totalValue;
+        }
+    }
+
+    console.log('Total da ordem:', totalSum); // Adiciona um log para verificar o valor total
+
+    // Atualiza o campo "Total" com o somatório e também o campo oculto
+    const totalItensValor = document.getElementById('totalItensValor');
+    totalItensValor.textContent = `R$ ${totalSum.toFixed(2)}`;
+    document.getElementById('valor_total_hidden').value = totalSum.toFixed(2); // Atualiza o valor do campo oculto
+
+    // Mostrar ou esconder o campo "Total:" baseado na quantidade de itens
+    if (tableBody.rows.length > 0) {
+        totalItensDiv.style.display = 'block';
+    } else {
+        totalItensDiv.style.display = 'none';
+    }
+}
+
+// Esconde o campo "Total:" inicialmente
+//document.getElementById('totalItens').style.display = 'none';
+
+
+// Função para formatar um número como moeda
+function formatarMoeda(valor) {
+    return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+    
+function desformatarMoeda(valor) {
+    if (valor !== null && valor !== undefined) {
+        // Remove qualquer formatação, como pontos de milhar e símbolos de moeda
+        const valorSemFormatacao = valor.replace(/[^\d.,]/g, '').replace(',', '.');
+        // Retorna o número parseado a partir da string sem formatação
+        return parseFloat(valorSemFormatacao);
+    } else {
+        console.error("O valor é nulo ou indefinido.");
+        return NaN; // Retornar NaN (Not-a-Number) para indicar um valor inválido
+    }
+}
+//Salvar novo cliente criado via modal
+function salvarNovoCliente() {
+    var nome = document.getElementById('nomeCliente').value;
+    var email = document.getElementById('emailCliente').value;
+    var logradouro = document.getElementById('logradouroCliente').value;
+    var cep = document.getElementById('cepCliente').value;
+    var numero = document.getElementById('numeroCliente').value;
+    var bairro = document.getElementById('bairroCliente').value;
+    var cpf_cnpj = document.getElementById('cpfCnpjCliente').value;
+    var telefone = document.getElementById('telefoneCliente').value;
+    var uf = document.getElementById('ufCliente').value; // Corrigido para obter o valor do campo uf
+
+    $.ajax({
+        url: '/criar_cliente',
+        method: 'POST',
+        data: {
+            nome: nome,
+            email: email,
+            logradouro: logradouro,
+            cep: cep,
+            numero: numero,
+            bairro: bairro,
+            cpf_cnpj: cpf_cnpj,
+            telefone: telefone,
+            uf: uf // Atualizado para enviar o valor do campo uf
+        },
+        success: function(response) {
+            // Recarregar a página para atualizar a lista de clientes
+            location.reload();
+
+            // Fechar o modal (opcional)
+            $('#modalCriarCliente').modal('hide');
+
+            // Adicionar um console.log para mostrar a resposta do servidor
+            console.log('Cliente criado:', response);
+        },
+        error: function(xhr, status, error) {
+            console.error(error);
+        }
+    });
+}
+
+function atualizarFormularioClientes() {
+    // Fazer uma requisição AJAX para obter a lista atualizada de clientes
+    $.ajax({
+        url: '/obter_lista_clientes', // Rota para obter a lista de clientes
+        method: 'GET',
+        success: function(response) {
+            // Atualizar o HTML do select de clientes com a lista atualizada
+            $('#cliente').html(response);
+        },
+        error: function(xhr, status, error) {
+            // Lidar com erros, se necessário
+            console.error(error);
+        }
+    });
+}   
+
+// Função para calcular o valor total da ordem
+function calcularTotalOrdem() {
+    let total = 0;
+    const tableBody = document.getElementById('selectedItemTableBody');
+
+    // Itera sobre as linhas da tabela para calcular o somatório total
+    for (let i = 0; i < tableBody.rows.length; i++) {
+        const row = tableBody.rows[i];
+        
+        // Obtém o valor total da linha atual e converte para um número
+        const totalCell = row.cells[5]; // A célula com o valor total está na posição 5
+        const totalValue = parseFloat(totalCell.textContent.replace('R$ ', '').replace('.', '').replace(',', '.')); // Remove "R$" e substitui vírgulas por pontos
+
+        // Verifica se o valor é um número válido e soma ao total
+        if (!isNaN(totalValue)) {
+            total += totalValue;
+        }
+    }
+
+    // Retorna o total formatado com duas casas decimais
+    return total.toFixed(2);
+}
+
+// Função para atualizar o valor total da ordem
+function atualizarValorTotalOrdem() {
+    let total = 0;
+    listaDeItens.forEach(item => {
+        total += item.valorTotal;
+    });
+    const totalItensValor = document.getElementById('totalItensValor');
+    if (totalItensValor) {
+        totalItensValor.textContent = formatarMoeda(total);
+    }
+}
+
+
+// Função para validar o formulário antes de submeter
+function validarFormulario() {
+    // Lógica de validação aqui, por exemplo:
+    const dataInicio = document.getElementById('data_inicio').value;
+    const prevEntrega = document.getElementById('prev_entrega').value;
+    // Verificar se os campos de data estão preenchidos
+    if (dataInicio === '' || prevEntrega === '') {
+        // Mostrar modal de campos faltando
+        $('#camposFaltandoTexto').text('Por favor, preencha todos os campos de data.');
+        $('#camposFaltandoModal').modal('show');
+    } else {
+        adicionarItensAoFormulario();
+        // Se todos os campos estiverem preenchidos, submit do formulário
         document.getElementById('form-ordem').submit();
     }
 }
-</script>
 
-<style>
-    .is-invalid {
-        border-color: #dc3545 !important;
-    }
-</style>
+document.addEventListener('DOMContentLoaded', (event) => {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('data_inicio').value = today;
+    document.getElementById('prev_entrega').value = today;
+    atualizarValorTotalOrdem();
+});
+    </script>
+    
+    <style>
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+    </style>
 {% endblock %}

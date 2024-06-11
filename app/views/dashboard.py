@@ -1,11 +1,18 @@
-from app.models.models import Order, Client, Item # Importe o modelo Order
+from app.models.models import Order, Client, Item, Categoria, Estado
 from flask import Blueprint, render_template,request, redirect, url_for, jsonify, make_response, Response, flash
 from flask_login import login_required, current_user
 from sqlalchemy import text, cast, desc
 from app import db
 from decimal import Decimal
 from datetime import datetime
-import math, uuid, pdfkit
+import math, uuid, pdfkit, re, json
+import logging
+from flask import current_app
+
+
+
+# Configure o sistema de logging
+logging.basicConfig(level=logging.DEBUG)
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
@@ -29,74 +36,79 @@ def dashboard():
 def ordem_form():
     order = Order.query.all()
     order_count_plus_one = len(order) + 1
+    
     clientes = Client.query.order_by(Client.nome).all()
     itens = Item.query.all()  # Consulta para obter todos os itens
+    categorias = Categoria.query.all()
+    estados = Estado.query.all()
+    
+    opcoes_pagamento = ["Transferência bancária", "Link de pagamento", "Cartão de crédito", 
+                        "Cartão de débito", "Pix", "Boleto bancário", "Dinheiro em espécie"]
+    
     # Renderize o template e passe o número de ordem como contexto
-    return render_template('/ordens/ordem_form.html', email=current_user.email, order=order, order_count_plus_one=order_count_plus_one, clientes=clientes, itens=itens)
+    return render_template('/ordens/ordem_form.html',opcoes_pagamento=opcoes_pagamento, email=current_user.email,
+                        order=order, order_count_plus_one=order_count_plus_one, clientes=clientes, itens=itens,categorias=categorias,
+                        estados=estados)
 
 
 @dashboard_bp.route('/salvar_ordem', methods=['POST'])
 @login_required
 def salvar_ordem():
     if request.method == 'POST':
-        # Obter a quantidade atual de ordens
-        total_ordens = Order.query.count()
+        # Verificar se todos os campos necessários estão presentes no formulário
+        required_fields = ['data_inicio', 'prev_entrega', 'cliente', 'equipamento', 'forma_pagamento', 'prioridade', 'status', 'observacoes', 'categoria', 'items', 'valor_total']
+        for field in required_fields:
+            if field not in request.form:
+                return jsonify({'error': f'Campo obrigatório ausente: {field}'}), 400
 
-        # Obtenha os dados do formulário
+        total_ordens = Order.query.count()
+        
         operador = current_user.first_name + ' ' + current_user.last_name
         data_inicio = request.form['data_inicio']
         previsao_entrega = request.form['prev_entrega']
-        
-        # Obtenha o ID do cliente do formulário
         cliente_id = request.form['cliente']
-        
-        # Busque o cliente pelo ID
         cliente = Client.query.get(cliente_id)
-        
-        # Obtenha o nome do cliente
         nome_cliente = cliente.nome if cliente else None
-        
         equipamento = request.form['equipamento']
-        categoria = request.form['categoria']
+        forma_pagamento = request.form['forma_pagamento']
         prioridade = request.form['prioridade']
         status = request.form['status']
-
-        # Remova o símbolo de moeda e substitua a vírgula por ponto no campo valor_inicial
-        valor_inicial_str = request.form['vl_inicial']
-        valor_inicial_str = valor_inicial_str.replace('R$', '').replace('.', '') # Remover os pontos de milhar
-        valor_inicial_str = valor_inicial_str.replace(',', '.') # Substituir a vírgula por ponto
-
-        # Converta para float
-        valor_inicial = float(valor_inicial_str)
-
         observacoes = request.form['observacoes']
-
-        # Calcular o próximo número de ordem sequencial
+        categoria_ordem = request.form['categoria']  # Adicionando categoria_ordem
         next_order_number = total_ordens + 1
+        items_json = request.form['items']
+        items = json.loads(items_json)
+        
+        # Verificar se o campo 'valor_total' está presente e é um número válido
+        if 'valor_total' not in request.form:
+            return jsonify({'error': 'Campo "valor_total" ausente no formulário'}), 400
+        try:
+            valor_total_ordem = float(request.form['valor_total'])
+        except ValueError:
+            return jsonify({'error': 'O campo "valor_total" não é um número válido'}), 400
 
-        # Crie uma nova ordem com o número de ordem sequencial
+
+        # Crie a ordem após adicionar os itens para obter o ID da ordem
         nova_ordem = Order(
             numero_ordem=str(next_order_number),
             operador=operador, 
             data_inicio=data_inicio, 
             previsao_entrega=previsao_entrega,
-            cliente=nome_cliente,  # Use o nome do cliente aqui
+            cliente=nome_cliente, 
             equipamento=equipamento, 
-            categoria=categoria,
+            forma_pagamento=forma_pagamento,
             prioridade=prioridade, 
-            status=status, 
-            valor_inicial=valor_inicial,
-            observacoes=observacoes
+            status=status,
+            observacoes=observacoes,
+            categoria_ordem=categoria_ordem, 
+            valor_total=valor_total_ordem,
+            items=items
         )
 
-        # Adicione a nova ordem ao session do banco de dados
         db.session.add(nova_ordem)
-
-        # Faça commit para efetivar a transação no banco de dados
         db.session.commit()
 
-        # Redirecione para a página inicial ou para onde desejar após salvar a ordem
-        return redirect(url_for('dashboard.ordens'))
+        return redirect(url_for('dashboard.ordens', valor_total=valor_total_ordem, ordem_id=nova_ordem.id))
 
 ##################### Gerenciamento de ORDENS #########################
 @dashboard_bp.route('/ordens')
@@ -117,6 +129,8 @@ def ordens():
 
     # Query para obter todas as orders com filtros aplicados
     query = Order.query
+    categorias = Categoria.query.all()
+    estados = Estado
 
     if search_order_id:
         query = query.filter(cast(Order.numero_ordem, db.String).ilike(f'%{search_order_id}%'))
@@ -141,6 +155,8 @@ def ordens():
 
     total_ordens = len(orders_paginated.items)
     total_pages = orders_paginated.pages
+    
+    valor_total = request.args.get('valor_total', default=0, type=float)
 
     # Passar os dados filtrados para o template
     response = make_response(render_template('/ordens/ordens.html',
@@ -150,7 +166,9 @@ def ordens():
                                         total_pages=total_pages,
                                         current_page=page,
                                         filter_start_date=filter_start_date,
-                                        filter_end_date=filter_end_date))
+                                        filter_end_date=filter_end_date,
+                                        categorias=categorias,
+                                        valor_total=valor_total))
     
     # Atualize o cookie 'last_page_load_time' com o horário atual
     response.set_cookie('last_page_load_time', current_time.isoformat())
@@ -162,8 +180,15 @@ def ordens():
 def ordem_edit(order_id):
     # Busca a ordem pelo ID
     ordem = Order.query.get_or_404(order_id)
+    
+    # Consultar todos os clientes
+    clientes = Client.query.all()
+    categorias = Categoria.query.all()
+    opcoes_pagamento = ["Transferência bancária", "Link de pagamento", "Cartão de crédito", 
+                            "Cartão de débito", "Pix", "Boleto bancário", "Dinheiro em espécie"]
 
     if request.method == 'POST':
+        current_app.logger.info("Dados recebidos do formulário: %s", request.form)
         # Obtenha os dados do formulário de edição
         ordem.operador = request.form['operador']
         ordem.data_inicio = request.form['data_inicio']
@@ -174,13 +199,13 @@ def ordem_edit(order_id):
         ordem.prioridade = request.form['prioridade']
         ordem.status = request.form['status']
 
-        # Remova o símbolo de moeda e substitua a vírgula por ponto no campo valor_inicial
-        valor_inicial_str = request.form['vl_inicial']
-        valor_inicial_str = valor_inicial_str.replace('R$', '').replace('.', '')  # Remover os pontos de milhar
-        valor_inicial_str = valor_inicial_str.replace(',', '.')  # Substituir a vírgula por ponto
+        # Atualiza os itens
+        items_json = request.form.get('items')
+        if items_json:
+            ordem.items = json.loads(items_json)
 
-        # Converta para float
-        ordem.valor_inicial = float(valor_inicial_str)
+        # Calcular o total da ordem
+        total_ordem = sum(item['valorTotal'] for item in ordem.items)
 
         ordem.observacoes = request.form['observacoes']
 
@@ -191,8 +216,8 @@ def ordem_edit(order_id):
         return redirect(url_for('dashboard.ordens'))
 
     # Renderize o template do formulário de edição e passe a ordem como contexto
-    return render_template('/ordens/ordem_edit.html', email=current_user.email, ordem=ordem)
-
+    return render_template('/ordens/ordem_edit.html', email=current_user.email, ordem=ordem, clientes=clientes, opcoes_pagamento=opcoes_pagamento,
+                        categorias=categorias, items=json.dumps(ordem.items), valor_total=ordem.valor_total)
 
 @dashboard_bp.route('/ordem_delete/<int:order_id>', methods=['POST'])
 @login_required
@@ -549,3 +574,51 @@ def buscar_itens():
 
     return jsonify(response)
 
+###### Categorias 
+@dashboard_bp.route('/criar_categoria', methods=['GET', 'POST'])
+@login_required
+def criar_categoria():
+    if request.method == 'POST':
+        nome_categoria = request.form['nome_categoria']
+        
+        # Validação de entrada
+        if not nome_categoria:
+            flash('O nome da categoria é obrigatório.', 'error')
+            return redirect(url_for('dashboard.criar_categoria'))
+        
+        # Verifica se a categoria já existe no banco de dados
+        categoria_existente = Categoria.query.filter_by(nome=nome_categoria).first()
+        if categoria_existente:
+            flash('Essa categoria já existe.', 'error')
+            return redirect(url_for('dashboard.criar_categoria'))
+        
+        nova_categoria = Categoria(nome=nome_categoria)
+
+        try:
+            # Adiciona a nova categoria ao banco de dados
+            db.session.add(nova_categoria)
+            db.session.commit()
+            flash('Categoria criada com sucesso!', 'success')
+            return redirect(url_for('dashboard.listar_categorias'))
+        except Exception as e:
+            flash('Erro ao criar a categoria.', 'error')
+            print(e)
+            return redirect(url_for('dashboard.criar_categoria'))
+
+    return render_template('category/category_form.html',)
+
+
+@dashboard_bp.route('/categorias')
+@login_required
+def listar_categorias():
+    categorias = Categoria.query.all()
+    return render_template('category/category.html', categorias=categorias)
+
+
+@dashboard_bp.route('/excluir_categoria/<int:categoria_id>', methods=['POST'])
+@login_required
+def excluir_categoria(categoria_id):
+    categoria = Categoria.query.get_or_404(categoria_id)
+    db.session.delete(categoria)
+    db.session.commit()
+    return redirect(url_for('dashboard.listar_categorias'))
